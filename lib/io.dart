@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+
 import 'package:archive/archive.dart';
 
 import 'model.dart';
@@ -20,10 +22,30 @@ class DataPack {
         continue;
       }
       if (f.name.startsWith(dir + '/')) {
-        ids.add(f.name.substring(0, f.name.length - 4)); // without '.json'
+        ids.add(f.name.substring(dir.length + 1, f.name.length - 5));
       }
     }
     return ids;
+  }
+
+  bool contains(ModelType type, String id) {
+    if (type == null || id == null) {
+      return false;
+    }
+    String path = '${_path(type)}/$id.json';
+    return _archive.findFile(path) != null;
+  }
+
+  Map<String, dynamic> get(ModelType type, String id) {
+    if (type == null || id == null) {
+      return null;
+    }
+    String path = '${_path(type)}/$id.json';
+    ArchiveFile f = _archive.findFile(path);
+    if (f == null) {
+      return null;
+    }
+    return JSON.decode(UTF8.decode(f.content)) as Map<String, dynamic>;
   }
 
   String _path(ModelType type) {
