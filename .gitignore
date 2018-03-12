@@ -1,3 +1,4 @@
-doc/
+doc/api/
 .packages
 *.lock
+.pub/

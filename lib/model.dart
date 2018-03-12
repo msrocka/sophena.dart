@@ -21,6 +21,28 @@ abstract class BaseDataEntity extends RootEntity {
   bool isProtected;
 }
 
+/// An enumeration of all root entity types. This is used in things like data
+/// exchange, e.g. for assigning package paths to types and the other way around.
+enum ModelType {
+  BOILER,
+  BUFFER,
+  BUILDING_STATE,
+  CONSUMER,
+  COST_SETTINGS,
+  FLUE_GAS_CLEANING,
+  FUEL,
+  HEAT_RECOVERY,
+  LOAD_PROFILE,
+  MANUFACTURER,
+  PIPE,
+  PRODUCER,
+  PRODUCT_GROUP,
+  PRODUCT,
+  PROJECT,
+  TRANSFER_STATION,
+  WEATHER_STATION
+}
+
 class Manufacturer extends BaseDataEntity {
   String address;
   String url;
