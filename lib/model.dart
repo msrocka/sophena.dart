@@ -2,12 +2,44 @@
 /// database.
 abstract class AbstractEntity {
   String id;
+
+  AbstractEntity();
+
+  AbstractEntity.fromJson(Map<String, dynamic> json) {
+    id = json[id];
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['id'] = id;
+    json['@type'] = this.runtimeType.toString();
+    return json;
+  }
 }
 
 /// A root entity is a stand-alone entity with a name and description.
 abstract class RootEntity extends AbstractEntity {
   String name;
   String description;
+
+  RootEntity();
+
+  RootEntity.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    name = json['name'];
+    description = json['description'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    if (name != null) {
+      json['name'] = name;
+    }
+    if (description != null) {
+      json['description'] = description;
+    }
+    return super.toJson();
+  }
 }
 
 /// Instances of this class are entities that are located in the base data. Base
@@ -19,6 +51,19 @@ abstract class BaseDataEntity extends RootEntity {
   /// If a data set is protected it cannot be modified by a user of the
   /// application.
   bool isProtected;
+
+  BaseDataEntity();
+
+  BaseDataEntity.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    isProtected = json['isProtected'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    json['isProtected'] = isProtected;
+    return json;
+  }
 }
 
 /// An enumeration of all root entity types. This is used in things like data
@@ -46,6 +91,21 @@ enum ModelType {
 class Manufacturer extends BaseDataEntity {
   String address;
   String url;
+
+  Manufacturer();
+
+  Manufacturer.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    address = json['address'];
+    url = json['url'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    json['address'] = address;
+    json['url'] = url;
+    return json;
+  }
 }
 
 enum ProductType {
@@ -75,10 +135,10 @@ class ProductGroup extends BaseDataEntity {
   /// Default usage duration of this product group given in years.
   int duration;
 
-  /// Default fraction [%] of the investment that is used for repair.
+  /// Default fraction (%) of the investment that is used for repair.
   double repair;
 
-  /// Default fraction [%] of the investment that is used for maintenance.
+  /// Default fraction (%) of the investment that is used for maintenance.
   double maintenance;
 
   /// Default amount of hours that are used for operation in one year.
