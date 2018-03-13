@@ -7,25 +7,64 @@ void main() {
   var modelType = null; // check _modelType!
 
   var fieldText = '''
-	/** The purchase price of the product in EUR. */
-	@Column(name = "investment")
-	public double investment;
+@Column(name = "is_disabled")
+	public boolean disabled;
 
-	/** The usage duration of the product in years. */
-	@Column(name = "duration")
-	public int duration;
+	@OneToOne
+	@JoinColumn(name = "f_building_state")
+	public BuildingState buildingState;
 
-	/** Fraction [%] of the investment that is used for repair. */
-	@Column(name = "repair")
-	public double repair;
+	@Column(name = "demand_based")
+	public boolean demandBased;
 
-	/** Fraction [%] of the investment that is used for maintenance . */
-	@Column(name = "maintenance")
-	public double maintenance;
+	@Column(name = "heating_load")
+	public double heatingLoad;
 
-	/** Hours per year that are used for operation of the product. */
-	@Column(name = "operation")
-	public double operation;
+	@Column(name = "water_fraction")
+	public double waterFraction;
+
+	@Column(name = "load_hours")
+	public int loadHours;
+
+	@Column(name = "heating_limit")
+	public double heatingLimit;
+
+	@Column(name = "floor_space")
+	public double floorSpace;
+
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_consumer")
+	public final List<FuelConsumption> fuelConsumptions = new ArrayList<>();
+
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_owner")
+	public final List<TimeInterval> interruptions = new ArrayList<>();
+
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_consumer")
+	public final List<LoadProfile> loadProfiles = new ArrayList<>();
+
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "f_location")
+	public Location location;
+
+	@OneToOne
+	@JoinColumn(name = "f_transfer_station")
+	public TransferStation transferStation;
+
+	@Embedded
+	@AttributeOverrides({
+			@AttributeOverride(name = "investment",
+					column = @Column(name = "transfer_station_investment")),
+			@AttributeOverride(name = "duration",
+					column = @Column(name = "transfer_station_duration")),
+			@AttributeOverride(name = "repair",
+					column = @Column(name = "transfer_station_repair")),
+			@AttributeOverride(name = "maintenance",
+					column = @Column(name = "transfer_station_maintenance")),
+			@AttributeOverride(name = "operation",
+					column = @Column(name = "transfer_station_operation")) })
+	public ProductCosts transferStationCosts;
   ''';
 
   List<String> fields = [];
@@ -54,6 +93,20 @@ void main() {
     var name = field.split(' ')[1];
     if (_primitive(type)) {
       print("    $name = json['$name'];");
+    } else if (type.startsWith('List<')) {
+      String typeVar = _typeVar(type);
+      print("");
+      print("    if (json['$name'] != null) {");
+      print("      var refs = json['$name'] as List<Map<String, dynamic>>;");
+      print("      $name = [];");
+      print("      for (var ref in refs) {");
+      print("         var e = new $typeVar.fromJson(ref, pack: pack);");
+      print("         if (e != null) {");
+      print("             $name.add(e);");
+      print("         }");
+      print("      }");
+      print("    }");
+      print("");
     } else {
       print("    if (json['$name'] != null) {");
       print("      $name = null; // TODO convert json['$name'];");
@@ -111,5 +164,9 @@ void main() {
 
 bool _primitive(String type) {
   String t = type.toLowerCase();
-  return ['string', 'double', 'int', 'bool'].contains(t);
+  return ['string', 'double', 'int', 'bool', 'boolean'].contains(t);
+}
+
+String _typeVar(String type) {
+  return type.split('<')[1].split('>')[0];
 }

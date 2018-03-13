@@ -675,7 +675,7 @@ class TransferStation extends AbstractProduct {
   }
 }
 
-class ProductCosts  {
+class ProductCosts {
   double investment;
   int duration;
   double repair;
@@ -684,7 +684,7 @@ class ProductCosts  {
 
   ProductCosts();
 
-  ProductCosts.fromJson(Map<String, dynamic> json)  {
+  ProductCosts.fromJson(Map<String, dynamic> json) {
     investment = json['investment'];
     duration = json['duration'];
     repair = json['repair'];
@@ -731,38 +731,63 @@ class Consumer extends RootEntity {
 
   Consumer();
 
-  Consumer.fromJson(Map<String, dynamic> json, {DataPack pack}) : super.fromJson(json, pack: pack) {
-    if (json['disabled'] != null) {
-      disabled = null; // TODO convert json['disabled'];
-    }
+  Consumer.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    disabled = json['disabled'];
     if (json['buildingState'] != null) {
-      buildingState = null; // TODO convert json['buildingState'];
+      buildingState = new BuildingState._fromRef(json['buildingState'], pack);
     }
-    if (json['demandBased'] != null) {
-      demandBased = null; // TODO convert json['demandBased'];
-    }
+    demandBased = json['demandBased'];
     heatingLoad = json['heatingLoad'];
     waterFraction = json['waterFraction'];
     loadHours = json['loadHours'];
     heatingLimit = json['heatingLimit'];
     floorSpace = json['floorSpace'];
+
     if (json['fuelConsumptions'] != null) {
-      fuelConsumptions = null; // TODO convert json['fuelConsumptions'];
+      var refs = json['fuelConsumptions'] as List<Map<String, dynamic>>;
+      fuelConsumptions = [];
+      for (var ref in refs) {
+        var e = new FuelConsumption.fromJson(ref, pack: pack);
+        if (e != null) {
+          fuelConsumptions.add(e);
+        }
+      }
     }
+
     if (json['interruptions'] != null) {
-      interruptions = null; // TODO convert json['interruptions'];
+      var refs = json['interruptions'] as List<Map<String, dynamic>>;
+      interruptions = [];
+      for (var ref in refs) {
+        var e = new TimeInterval.fromJson(ref, pack: pack);
+        if (e != null) {
+          interruptions.add(e);
+        }
+      }
     }
+
     if (json['loadProfiles'] != null) {
-      loadProfiles = null; // TODO convert json['loadProfiles'];
+      var refs = json['loadProfiles'] as List<Map<String, dynamic>>;
+      loadProfiles = [];
+      for (var ref in refs) {
+        var e = new LoadProfile.fromJson(ref, pack: pack);
+        if (e != null) {
+          loadProfiles.add(e);
+        }
+      }
     }
+
     if (json['location'] != null) {
-      location = null; // TODO convert json['location'];
+      location = new Location.fromJson(json['location'], pack: pack);
     }
+    
     if (json['transferStation'] != null) {
-      transferStation = null; // TODO convert json['transferStation'];
+      transferStation =
+          new TransferStation._fromRef(json['transferStation'], pack);
     }
     if (json['transferStationCosts'] != null) {
-      transferStationCosts = null; // TODO convert json['transferStationCosts'];
+      transferStationCosts =
+          new ProductCosts.fromJson(json['transferStationCosts']);
     }
   }
 
