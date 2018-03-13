@@ -102,8 +102,12 @@ class Manufacturer extends BaseDataEntity {
   @override
   Map<String, dynamic> toJson() {
     var json = super.toJson();
-    json['address'] = address;
-    json['url'] = url;
+    if (address != null) {
+      json['address'] = address;
+    }
+    if (url != null) {
+      json['url'] = url;
+    }
     return json;
   }
 }
@@ -128,6 +132,18 @@ enum ProductType {
   PLANNING
 }
 
+/// Get the product type for the given string [value].
+ProductType getProductType(String value) {
+  if (value == null) return null;
+  for (ProductType fg in ProductType.values) {
+    String s = fg.toString().split('\.')[1];
+    if (s == value) {
+      return fg;
+    }
+  }
+  return null;
+}
+
 class ProductGroup extends BaseDataEntity {
   ProductType type;
   int index;
@@ -143,6 +159,41 @@ class ProductGroup extends BaseDataEntity {
 
   /// Default amount of hours that are used for operation in one year.
   double operation;
+
+  ProductGroup();
+
+  ProductGroup.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    type = getProductType(json['type']);
+    index = json['index'];
+    duration = json['duration'];
+    repair = json['repair'];
+    maintenance = json['maintenance'];
+    operation = json['operation'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    if (type != null) {
+      json['type'] = type.toString().split('\.')[1];
+    }
+    if (index != null) {
+      json['index'] = index;
+    }
+    if (duration != null) {
+      json['duration'] = duration;
+    }
+    if (repair != null) {
+      json['repair'] = repair;
+    }
+    if (maintenance != null) {
+      json['maintenance'] = maintenance;
+    }
+    if (operation != null) {
+      json['operation'] = operation;
+    }
+    return json;
+  }
 }
 
 abstract class AbstractProduct extends BaseDataEntity {
@@ -151,6 +202,43 @@ abstract class AbstractProduct extends BaseDataEntity {
   Manufacturer manufacturer;
   ProductType type;
   ProductGroup group;
+
+  AbstractProduct();
+
+  AbstractProduct.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    purchasePrice = json['purchasePrice'];
+    url = json['url'];
+    if (json['manufacturer'] != null) {
+      manufacturer = new Manufacturer.fromJson(json['manufacturer']);
+    }
+    if (json['type'] != null) {
+      type = getProductType(json['type']);
+    }
+    if (json['group'] != null) {
+      group = new ProductGroup.fromJson(json['group']);
+    }
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    if (purchasePrice != null) {
+      json['purchasePrice'] = purchasePrice;
+    }
+    if (url != null) {
+      json['url'] = url;
+    }
+    if (manufacturer != null) {
+      json['manufacturer'] = manufacturer.toJson();
+    }
+    if (type != null) {
+      json['type'] = type.toString().split('\.')[1];
+    }
+    if (group != null) {
+      json['group'] = group.toJson();
+    }
+    return json;
+  }
 }
 
 enum FuelGroup {
@@ -165,11 +253,12 @@ enum FuelGroup {
   WOOD
 }
 
-FuelGroup getFuelGroup(String val) {
-  if (val == null) return null;
+/// Get the fuel group for the given string [value].
+FuelGroup getFuelGroup(String value) {
+  if (value == null) return null;
   for (FuelGroup fg in FuelGroup.values) {
     String s = fg.toString().split('\.')[1];
-    if (s == val) {
+    if (s == value) {
       return fg;
     }
   }
@@ -195,11 +284,7 @@ class Fuel extends BaseDataEntity {
 
   Fuel();
 
-  Fuel.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    description = json['description'];
-    isProtected = json['isProtected'];
+  Fuel.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
     unit = json['unit'];
     calorificValue = json['calorificValue'];
     density = json['density'];

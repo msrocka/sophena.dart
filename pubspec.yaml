@@ -3,3 +3,6 @@ version: 0.0.1
 
 dependencies:
   archive: 1.0.33
+
+dev_dependencies:
+  test: ^0.12.32
