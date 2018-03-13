@@ -2,13 +2,14 @@
 // We do not use a general code generator for the JSON bindings to be able
 // to tune them by hand.
 void main() {
-  var type = 'AbstractProduct';
+  var type = 'Fuel';
   var fields = [
-    'double purchasePrice',
-    'String url',
-    'Manufacturer manufacturer',
-    'ProductType type',
-    'ProductGroup group',
+    'String unit',
+    'double calorificValue',
+    'double density',
+    'FuelGroup group',
+    'double co2Emissions',
+    'double primaryEnergyFactor',
   ];
 
   print('class $type extends ? {');

@@ -288,24 +288,33 @@ class Fuel extends BaseDataEntity {
     unit = json['unit'];
     calorificValue = json['calorificValue'];
     density = json['density'];
+    if (json['group'] != null) {
+      group = getFuelGroup(json['group']);
+    }
     co2Emissions = json['co2Emissions'];
     primaryEnergyFactor = json['primaryEnergyFactor'];
-    group = getFuelGroup(json['group']);
   }
 
+  @override
   Map<String, dynamic> toJson() {
-    Map<String, dynamic> json = {};
-    json['id'] = id;
-    json['name'] = name;
-    json['description'] = description;
-    json['isProtected'] = isProtected;
-    json['unit'] = unit;
-    json['calorificValue'] = calorificValue;
-    json['density'] = density;
-    json['co2Emissions'] = co2Emissions;
-    json['primaryEnergyFactor'] = primaryEnergyFactor;
+    var json = super.toJson();
+    if (unit != null) {
+      json['unit'] = unit;
+    }
+    if (calorificValue != null) {
+      json['calorificValue'] = calorificValue;
+    }
+    if (density != null) {
+      json['density'] = density;
+    }
     if (group != null) {
       json['group'] = group.toString().split('\.')[1];
+    }
+    if (co2Emissions != null) {
+      json['co2Emissions'] = co2Emissions;
+    }
+    if (primaryEnergyFactor != null) {
+      json['primaryEnergyFactor'] = primaryEnergyFactor;
     }
     return json;
   }
