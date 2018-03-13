@@ -145,16 +145,17 @@ void main() {
   print('  @override');
   print('  Map<String, dynamic> toJson({DataPack pack}) {');
   print('    var json = super.toJson(pack: pack);');
+  print('    var w = new JsonWriter(pack, json);');
   for (var field in fields) {
     var type = field.split(' ')[0];
     var name = field.split(' ')[1];
-    print('    if ($name != null) {');
     if (_primitive(type)) {
-      print("      json['$name'] = $name;");
+      print("    w.val('$name', $name);");
+    } else if (type.startsWith('List<')) {
+      print("    w.list('$name', $name); || w.refList('$name', $name);");
     } else {
-      print("      json['$name'] = null; // TODO convert $name;");
+      print("    w.obj('$name', $name); || w.refObj('$name', name); || w.enumer('$name', $name);");
     }
-    print('    }');
   }
   print('    return json;');
   print('  }');

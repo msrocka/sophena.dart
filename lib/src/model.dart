@@ -1,5 +1,6 @@
 import 'datapack.dart';
 import 'enums.dart';
+import 'json.dart';
 
 /// An abstract entity is basically just a thing that can be stored in a
 /// Sophena database or data package.
@@ -64,11 +65,12 @@ abstract class RootEntity extends AbstractEntity {
       return;
     }
     var json = toJson(pack: pack);
-    pack.put(_modelType(this), json);
+    pack.put(modelType(this), json);
   }
 }
 
-ModelType _modelType<T extends RootEntity>(T e) {
+/// Returns the model type of the given entity.
+ModelType modelType<T extends RootEntity>(T e) {
   if (e is Manufacturer) return ModelType.MANUFACTURER;
   if (e is ProductGroup) return ModelType.PRODUCT_GROUP;
   if (e is BufferTank) return ModelType.BUFFER;
@@ -79,19 +81,6 @@ ModelType _modelType<T extends RootEntity>(T e) {
   if (e is Consumer) return ModelType.CONSUMER;
   // TODO: other model types
   return null;
-}
-
-Map<String, dynamic> _toRef<T extends RootEntity>(T e, DataPack pack) {
-  if (e == null || e.id == null) {
-    return null;
-  }
-  var ref = {'id': e.id, '@type': e.runtimeType.toString(), 'name': e.name};
-  ModelType type = _modelType(e);
-  if (pack == null || pack.contains(type, e.id)) {
-    return ref;
-  }
-  e.save(pack);
-  return ref;
 }
 
 /// Instances of this class are entities that are located in the base data. Base
@@ -152,12 +141,9 @@ class Manufacturer extends BaseDataEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (address != null) {
-      json['address'] = address;
-    }
-    if (url != null) {
-      json['url'] = url;
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('address', address);
+    w.val('url', url);
     return json;
   }
 }
@@ -211,24 +197,13 @@ class ProductGroup extends BaseDataEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (type != null) {
-      json['type'] = type.toString().split('\.')[1];
-    }
-    if (index != null) {
-      json['index'] = index;
-    }
-    if (duration != null) {
-      json['duration'] = duration;
-    }
-    if (repair != null) {
-      json['repair'] = repair;
-    }
-    if (maintenance != null) {
-      json['maintenance'] = maintenance;
-    }
-    if (operation != null) {
-      json['operation'] = operation;
-    }
+    var w = new JsonWriter(pack, json);
+    w.enumer('type', type);
+    w.val('index', index);
+    w.val('duration', duration);
+    w.val('repair', repair);
+    w.val('maintenance', maintenance);
+    w.val('operation', operation);
     return json;
   }
 }
@@ -256,21 +231,12 @@ abstract class AbstractProduct extends BaseDataEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (purchasePrice != null) {
-      json['purchasePrice'] = purchasePrice;
-    }
-    if (url != null) {
-      json['url'] = url;
-    }
-    if (manufacturer != null) {
-      json['manufacturer'] = _toRef(manufacturer, pack);
-    }
-    if (type != null) {
-      json['type'] = type.toString().split('\.')[1];
-    }
-    if (group != null) {
-      json['group'] = group.toJson();
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('purchasePrice', purchasePrice);
+    w.val('url', url);
+    w.refObj('manufacturer', manufacturer);
+    w.enumer('type', type);
+    w.refObj('group', group);
     return json;
   }
 }
@@ -327,24 +293,13 @@ class Fuel extends BaseDataEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (unit != null) {
-      json['unit'] = unit;
-    }
-    if (calorificValue != null) {
-      json['calorificValue'] = calorificValue;
-    }
-    if (density != null) {
-      json['density'] = density;
-    }
-    if (group != null) {
-      json['group'] = group.toString().split('\.')[1];
-    }
-    if (co2Emissions != null) {
-      json['co2Emissions'] = co2Emissions;
-    }
-    if (primaryEnergyFactor != null) {
-      json['primaryEnergyFactor'] = primaryEnergyFactor;
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('unit', unit);
+    w.val('calorificValue', calorificValue);
+    w.val('density', density);
+    w.enumer('group', group);
+    w.val('co2Emissions', co2Emissions);
+    w.val('primaryEnergyFactor', primaryEnergyFactor);
     return json;
   }
 
@@ -388,18 +343,11 @@ class BufferTank extends AbstractProduct {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (volume != null) {
-      json['volume'] = volume;
-    }
-    if (diameter != null) {
-      json['diameter'] = diameter;
-    }
-    if (height != null) {
-      json['height'] = height;
-    }
-    if (insulationThickness != null) {
-      json['insulationThickness'] = insulationThickness;
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('volume', volume);
+    w.val('diameter', diameter);
+    w.val('height', height);
+    w.val('insulationThickness', insulationThickness);
     return json;
   }
 }
@@ -449,27 +397,14 @@ class BuildingState extends BaseDataEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (index != null) {
-      json['index'] = index;
-    }
-    if (isDefault != null) {
-      json['isDefault'] = isDefault;
-    }
-    if (type != null) {
-      json['type'] = type.toString().split('\.')[1];
-    }
-    if (heatingLimit != null) {
-      json['heatingLimit'] = heatingLimit;
-    }
-    if (antifreezingTemperature != null) {
-      json['antifreezingTemperature'] = antifreezingTemperature;
-    }
-    if (waterFraction != null) {
-      json['waterFraction'] = waterFraction;
-    }
-    if (loadHours != null) {
-      json['loadHours'] = loadHours;
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('index', index);
+    w.val('isDefault', isDefault);
+    w.enumer('type', type);
+    w.val('heatingLimit', heatingLimit);
+    w.val('antifreezingTemperature', antifreezingTemperature);
+    w.val('waterFraction', waterFraction);
+    w.val('loadHours', loadHours);
     return json;
   }
 }
@@ -497,21 +432,12 @@ class FuelConsumption extends AbstractEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (fuel != null) {
-      json['fuel'] = _toRef(fuel, pack);
-    }
-    if (amount != null) {
-      json['amount'] = amount;
-    }
-    if (utilisationRate != null) {
-      json['utilisationRate'] = utilisationRate;
-    }
-    if (woodAmountType != null) {
-      json['woodAmountType'] = woodAmountType.toString().split('\.')[1];
-    }
-    if (waterContent != null) {
-      json['waterContent'] = waterContent;
-    }
+    var w = new JsonWriter(pack, json);
+    w.refObj('fuel', fuel);
+    w.val('amount', amount);
+    w.val('utilisationRate', utilisationRate);
+    w.enumer('woodAmountType', woodAmountType);
+    w.val('waterContent', waterContent);
     return json;
   }
 }
@@ -533,15 +459,10 @@ class TimeInterval extends AbstractEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (start != null) {
-      json['start'] = start;
-    }
-    if (end != null) {
-      json['end'] = end;
-    }
-    if (description != null) {
-      json['description'] = description;
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('start', start);
+    w.val('end', end);
+    w.val('description', description);
     return json;
   }
 }
@@ -590,24 +511,13 @@ class Location extends AbstractEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (name != null) {
-      json['name'] = name;
-    }
-    if (street != null) {
-      json['street'] = street;
-    }
-    if (zipCode != null) {
-      json['zipCode'] = zipCode;
-    }
-    if (city != null) {
-      json['city'] = city;
-    }
-    if (latitude != null) {
-      json['latitude'] = latitude;
-    }
-    if (longitude != null) {
-      json['longitude'] = longitude;
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('name', name);
+    w.val('street', street);
+    w.val('zipCode', zipCode);
+    w.val('city', city);
+    w.val('latitude', latitude);
+    w.val('longitude', longitude);
     return json;
   }
 }
@@ -653,24 +563,13 @@ class TransferStation extends AbstractProduct {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (buildingType != null) {
-      json['buildingType'] = buildingType;
-    }
-    if (outputCapacity != null) {
-      json['outputCapacity'] = outputCapacity;
-    }
-    if (stationType != null) {
-      json['stationType'] = stationType;
-    }
-    if (material != null) {
-      json['material'] = material;
-    }
-    if (waterHeating != null) {
-      json['waterHeating'] = waterHeating;
-    }
-    if (control != null) {
-      json['control'] = control;
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('buildingType', buildingType);
+    w.val('outputCapacity', outputCapacity);
+    w.val('stationType', stationType);
+    w.val('material', material);
+    w.val('waterHeating', waterHeating);
+    w.val('control', control);
     return json;
   }
 }
@@ -694,21 +593,12 @@ class ProductCosts {
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    if (investment != null) {
-      json['investment'] = investment;
-    }
-    if (duration != null) {
-      json['duration'] = duration;
-    }
-    if (repair != null) {
-      json['repair'] = repair;
-    }
-    if (maintenance != null) {
-      json['maintenance'] = maintenance;
-    }
-    if (operation != null) {
-      json['operation'] = operation;
-    }
+    var w = new JsonWriter(null, json);
+    w.val('investment', investment);
+    w.val('duration', duration);
+    w.val('repair', repair);
+    w.val('maintenance', maintenance);
+    w.val('operation', operation);
     return json;
   }
 }
@@ -812,48 +702,21 @@ class Consumer extends RootEntity {
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
-    if (disabled != null) {
-      json['disabled'] = null; // TODO convert disabled;
-    }
-    if (buildingState != null) {
-      json['buildingState'] = null; // TODO convert buildingState;
-    }
-    if (demandBased != null) {
-      json['demandBased'] = null; // TODO convert demandBased;
-    }
-    if (heatingLoad != null) {
-      json['heatingLoad'] = heatingLoad;
-    }
-    if (waterFraction != null) {
-      json['waterFraction'] = waterFraction;
-    }
-    if (loadHours != null) {
-      json['loadHours'] = loadHours;
-    }
-    if (heatingLimit != null) {
-      json['heatingLimit'] = heatingLimit;
-    }
-    if (floorSpace != null) {
-      json['floorSpace'] = floorSpace;
-    }
-    if (fuelConsumptions != null) {
-      json['fuelConsumptions'] = null; // TODO convert fuelConsumptions;
-    }
-    if (interruptions != null) {
-      json['interruptions'] = null; // TODO convert interruptions;
-    }
-    if (loadProfiles != null) {
-      json['loadProfiles'] = null; // TODO convert loadProfiles;
-    }
-    if (location != null) {
-      json['location'] = null; // TODO convert location;
-    }
-    if (transferStation != null) {
-      json['transferStation'] = null; // TODO convert transferStation;
-    }
-    if (transferStationCosts != null) {
-      json['transferStationCosts'] = null; // TODO convert transferStationCosts;
-    }
+    var w = new JsonWriter(pack, json);
+    w.val('disabled', disabled);
+    w.refObj('buildingState', name);
+    w.val('demandBased', demandBased);
+    w.val('heatingLoad', heatingLoad);
+    w.val('waterFraction', waterFraction);
+    w.val('loadHours', loadHours);
+    w.val('heatingLimit', heatingLimit);
+    w.val('floorSpace', floorSpace);
+    w.list('fuelConsumptions', fuelConsumptions);
+    w.list('interruptions', interruptions);
+    w.list('loadProfiles', loadProfiles);
+    w.obj('location', location);
+    w.refObj('transferStation', name);
+    w.refObj('transferStationCosts', name);
     return json;
   }
 }
