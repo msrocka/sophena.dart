@@ -598,38 +598,12 @@ class Consumer extends RootEntity {
     heatingLimit = json['heatingLimit'];
     floorSpace = json['floorSpace'];
 
-    if (json['fuelConsumptions'] != null) {
-      var refs = json['fuelConsumptions'] as List<Map<String, dynamic>>;
-      fuelConsumptions = [];
-      for (var ref in refs) {
-        var e = new FuelConsumption.fromJson(ref, pack: pack);
-        if (e != null) {
-          fuelConsumptions.add(e);
-        }
-      }
-    }
-
-    if (json['interruptions'] != null) {
-      var refs = json['interruptions'] as List<Map<String, dynamic>>;
-      interruptions = [];
-      for (var ref in refs) {
-        var e = new TimeInterval.fromJson(ref, pack: pack);
-        if (e != null) {
-          interruptions.add(e);
-        }
-      }
-    }
-
-    if (json['loadProfiles'] != null) {
-      var refs = json['loadProfiles'] as List<Map<String, dynamic>>;
-      loadProfiles = [];
-      for (var ref in refs) {
-        var e = new LoadProfile.fromJson(ref, pack: pack);
-        if (e != null) {
-          loadProfiles.add(e);
-        }
-      }
-    }
+    fuelConsumptions = jsonEach(json['fuelConsumptions'],
+        (ref) => new FuelConsumption.fromJson(ref, pack: pack));
+    interruptions = jsonEach(json['interruptions'],
+        (ref) => new TimeInterval.fromJson(ref, pack: pack));
+    loadProfiles = jsonEach(json['loadProfiles'],
+        (ref) => new LoadProfile.fromJson(ref, pack: pack));
 
     if (json['location'] != null) {
       location = new Location.fromJson(json['location'], pack: pack);
