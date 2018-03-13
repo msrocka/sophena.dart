@@ -71,6 +71,12 @@ abstract class RootEntity extends AbstractEntity {
 ModelType _modelType<T extends RootEntity>(T e) {
   if (e is Manufacturer) return ModelType.MANUFACTURER;
   if (e is ProductGroup) return ModelType.PRODUCT_GROUP;
+  if (e is BufferTank) return ModelType.BUFFER;
+  if (e is BuildingState) return ModelType.BUILDING_STATE;
+  if (e is Fuel) return ModelType.FUEL;
+  if (e is LoadProfile) return ModelType.LOAD_PROFILE;
+  if (e is TransferStation) return ModelType.TRANSFER_STATION;
+  if (e is Consumer) return ModelType.CONSUMER;
   // TODO: other model types
   return null;
 }
@@ -80,9 +86,11 @@ Map<String, dynamic> _toRef<T extends RootEntity>(T e, DataPack pack) {
     return null;
   }
   var ref = {'id': e.id, '@type': e.runtimeType.toString(), 'name': e.name};
-  if (pack != null) {
-    e.save(pack);
+  ModelType type = _modelType(e);
+  if (pack == null || pack.contains(type, e.id)) {
+    return ref;
   }
+  e.save(pack);
   return ref;
 }
 
@@ -121,6 +129,24 @@ class Manufacturer extends BaseDataEntity {
       : super.fromJson(json, pack: pack) {
     address = json['address'];
     url = json['url'];
+  }
+
+  factory Manufacturer.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) {
+      return null;
+    }
+    var json = pack.get(ModelType.MANUFACTURER, id);
+    if (json == null) {
+      return null;
+    }
+    return new Manufacturer.fromJson(json, pack: pack);
+  }
+
+  factory Manufacturer._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) {
+      return null;
+    }
+    return new Manufacturer.fromPack(ref['id'], pack);
   }
 
   @override
@@ -164,6 +190,24 @@ class ProductGroup extends BaseDataEntity {
     operation = json['operation'];
   }
 
+  factory ProductGroup.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) {
+      return null;
+    }
+    var json = pack.get(ModelType.PRODUCT_GROUP, id);
+    if (json == null) {
+      return null;
+    }
+    return new ProductGroup.fromJson(json, pack: pack);
+  }
+
+  factory ProductGroup._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) {
+      return null;
+    }
+    return new ProductGroup.fromPack(ref['id'], pack);
+  }
+
   @override
   Map<String, dynamic> toJson({DataPack pack}) {
     var json = super.toJson(pack: pack);
@@ -202,20 +246,16 @@ abstract class AbstractProduct extends BaseDataEntity {
       : super.fromJson(json, pack: pack) {
     purchasePrice = json['purchasePrice'];
     url = json['url'];
-    if (json['manufacturer'] != null) {
-      manufacturer = new Manufacturer._packRef(json['manufacturer'], pack);
-    }
+    manufacturer = new Manufacturer._fromRef(json['manufacturer'], pack);
     if (json['type'] != null) {
       type = getProductType(json['type']);
     }
-    if (json['group'] != null) {
-      group = new ProductGroup._packRef(json['group'], pack);
-    }
+    group = new ProductGroup._fromRef(json['group'], pack);
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (purchasePrice != null) {
       json['purchasePrice'] = purchasePrice;
     }
@@ -223,7 +263,7 @@ abstract class AbstractProduct extends BaseDataEntity {
       json['url'] = url;
     }
     if (manufacturer != null) {
-      json['manufacturer'] = manufacturer.toJson();
+      json['manufacturer'] = _toRef(manufacturer, pack);
     }
     if (type != null) {
       json['type'] = type.toString().split('\.')[1];
@@ -254,7 +294,8 @@ class Fuel extends BaseDataEntity {
 
   Fuel();
 
-  Fuel.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  Fuel.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     unit = json['unit'];
     calorificValue = json['calorificValue'];
     density = json['density'];
@@ -265,9 +306,27 @@ class Fuel extends BaseDataEntity {
     primaryEnergyFactor = json['primaryEnergyFactor'];
   }
 
+  factory Fuel.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) {
+      return null;
+    }
+    var json = pack.get(ModelType.FUEL, id);
+    if (json == null) {
+      return null;
+    }
+    return new Fuel.fromJson(json, pack: pack);
+  }
+
+  factory Fuel._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) {
+      return null;
+    }
+    return new Fuel.fromPack(ref['id'], pack);
+  }
+
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (unit != null) {
       json['unit'] = unit;
     }
@@ -300,16 +359,35 @@ class BufferTank extends AbstractProduct {
 
   BufferTank();
 
-  BufferTank.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  BufferTank.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     volume = json['volume'];
     diameter = json['diameter'];
     height = json['height'];
     insulationThickness = json['insulationThickness'];
   }
 
+  factory BufferTank.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) {
+      return null;
+    }
+    var json = pack.get(ModelType.BUFFER, id);
+    if (json == null) {
+      return null;
+    }
+    return new BufferTank.fromJson(json, pack: pack);
+  }
+
+  factory BufferTank._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) {
+      return null;
+    }
+    return new BufferTank.fromPack(ref['id'], pack);
+  }
+
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (volume != null) {
       json['volume'] = volume;
     }
@@ -337,7 +415,8 @@ class BuildingState extends BaseDataEntity {
 
   BuildingState();
 
-  BuildingState.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  BuildingState.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     index = json['index'];
     isDefault = json['isDefault'];
     if (json['type'] != null) {
@@ -349,9 +428,27 @@ class BuildingState extends BaseDataEntity {
     loadHours = json['loadHours'];
   }
 
+  factory BuildingState.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) {
+      return null;
+    }
+    var json = pack.get(ModelType.BUILDING_STATE, id);
+    if (json == null) {
+      return null;
+    }
+    return new BuildingState.fromJson(json, pack: pack);
+  }
+
+  factory BuildingState._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) {
+      return null;
+    }
+    return new BuildingState.fromPack(ref['id'], pack);
+  }
+
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (index != null) {
       json['index'] = index;
     }
@@ -386,10 +483,9 @@ class FuelConsumption extends AbstractEntity {
 
   FuelConsumption();
 
-  FuelConsumption.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
-    if (json['fuel'] != null) {
-      fuel = new Fuel.fromJson(json['fuel']);
-    }
+  FuelConsumption.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    fuel = new Fuel._fromRef(json['fuel'], pack);
     amount = json['amount'];
     utilisationRate = json['utilisationRate'];
     if (json['woodAmountType'] != null) {
@@ -399,10 +495,10 @@ class FuelConsumption extends AbstractEntity {
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (fuel != null) {
-      json['fuel'] = fuel.toJson();
+      json['fuel'] = _toRef(fuel, pack);
     }
     if (amount != null) {
       json['amount'] = amount;
@@ -427,15 +523,16 @@ class TimeInterval extends AbstractEntity {
 
   TimeInterval();
 
-  TimeInterval.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  TimeInterval.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     start = json['start'];
     end = json['end'];
     description = json['description'];
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (start != null) {
       json['start'] = start;
     }
@@ -444,6 +541,293 @@ class TimeInterval extends AbstractEntity {
     }
     if (description != null) {
       json['description'] = description;
+    }
+    return json;
+  }
+}
+
+class LoadProfile extends RootEntity {
+  List<double> dynamicData;
+  List<double> staticData;
+
+  LoadProfile();
+
+  LoadProfile.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    dynamicData = json['dynamicData'];
+    staticData = json['staticData'];
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    json['dynamicData'] = dynamicData;
+    json['staticData'] = staticData;
+    return json;
+  }
+}
+
+class Location extends AbstractEntity {
+  String name;
+  String street;
+  String zipCode;
+  String city;
+  double latitude;
+  double longitude;
+
+  Location();
+
+  Location.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    name = json['name'];
+    street = json['street'];
+    zipCode = json['zipCode'];
+    city = json['city'];
+    latitude = json['latitude'];
+    longitude = json['longitude'];
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    if (name != null) {
+      json['name'] = name;
+    }
+    if (street != null) {
+      json['street'] = street;
+    }
+    if (zipCode != null) {
+      json['zipCode'] = zipCode;
+    }
+    if (city != null) {
+      json['city'] = city;
+    }
+    if (latitude != null) {
+      json['latitude'] = latitude;
+    }
+    if (longitude != null) {
+      json['longitude'] = longitude;
+    }
+    return json;
+  }
+}
+
+class TransferStation extends AbstractProduct {
+  String buildingType;
+  double outputCapacity;
+  String stationType;
+  String material;
+  String waterHeating;
+  String control;
+
+  TransferStation();
+
+  TransferStation.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    buildingType = json['buildingType'];
+    outputCapacity = json['outputCapacity'];
+    stationType = json['stationType'];
+    material = json['material'];
+    waterHeating = json['waterHeating'];
+    control = json['control'];
+  }
+
+  factory TransferStation.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) {
+      return null;
+    }
+    var json = pack.get(ModelType.TRANSFER_STATION, id);
+    if (json == null) {
+      return null;
+    }
+    return new TransferStation.fromJson(json, pack: pack);
+  }
+
+  factory TransferStation._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) {
+      return null;
+    }
+    return new TransferStation.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    if (buildingType != null) {
+      json['buildingType'] = buildingType;
+    }
+    if (outputCapacity != null) {
+      json['outputCapacity'] = outputCapacity;
+    }
+    if (stationType != null) {
+      json['stationType'] = stationType;
+    }
+    if (material != null) {
+      json['material'] = material;
+    }
+    if (waterHeating != null) {
+      json['waterHeating'] = waterHeating;
+    }
+    if (control != null) {
+      json['control'] = control;
+    }
+    return json;
+  }
+}
+
+class ProductCosts  {
+  double investment;
+  int duration;
+  double repair;
+  double maintenance;
+  double operation;
+
+  ProductCosts();
+
+  ProductCosts.fromJson(Map<String, dynamic> json)  {
+    investment = json['investment'];
+    duration = json['duration'];
+    repair = json['repair'];
+    maintenance = json['maintenance'];
+    operation = json['operation'];
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    if (investment != null) {
+      json['investment'] = investment;
+    }
+    if (duration != null) {
+      json['duration'] = duration;
+    }
+    if (repair != null) {
+      json['repair'] = repair;
+    }
+    if (maintenance != null) {
+      json['maintenance'] = maintenance;
+    }
+    if (operation != null) {
+      json['operation'] = operation;
+    }
+    return json;
+  }
+}
+
+class Consumer extends RootEntity {
+  bool disabled;
+  BuildingState buildingState;
+  bool demandBased;
+  double heatingLoad;
+  double waterFraction;
+  int loadHours;
+  double heatingLimit;
+  double floorSpace;
+  List<FuelConsumption> fuelConsumptions;
+  List<TimeInterval> interruptions;
+  List<LoadProfile> loadProfiles;
+  Location location;
+  TransferStation transferStation;
+  ProductCosts transferStationCosts;
+
+  Consumer();
+
+  Consumer.fromJson(Map<String, dynamic> json, {DataPack pack}) : super.fromJson(json, pack: pack) {
+    if (json['disabled'] != null) {
+      disabled = null; // TODO convert json['disabled'];
+    }
+    if (json['buildingState'] != null) {
+      buildingState = null; // TODO convert json['buildingState'];
+    }
+    if (json['demandBased'] != null) {
+      demandBased = null; // TODO convert json['demandBased'];
+    }
+    heatingLoad = json['heatingLoad'];
+    waterFraction = json['waterFraction'];
+    loadHours = json['loadHours'];
+    heatingLimit = json['heatingLimit'];
+    floorSpace = json['floorSpace'];
+    if (json['fuelConsumptions'] != null) {
+      fuelConsumptions = null; // TODO convert json['fuelConsumptions'];
+    }
+    if (json['interruptions'] != null) {
+      interruptions = null; // TODO convert json['interruptions'];
+    }
+    if (json['loadProfiles'] != null) {
+      loadProfiles = null; // TODO convert json['loadProfiles'];
+    }
+    if (json['location'] != null) {
+      location = null; // TODO convert json['location'];
+    }
+    if (json['transferStation'] != null) {
+      transferStation = null; // TODO convert json['transferStation'];
+    }
+    if (json['transferStationCosts'] != null) {
+      transferStationCosts = null; // TODO convert json['transferStationCosts'];
+    }
+  }
+
+  factory Consumer.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) {
+      return null;
+    }
+    var json = pack.get(ModelType.CONSUMER, id);
+    if (json == null) {
+      return null;
+    }
+    return new Consumer.fromJson(json, pack: pack);
+  }
+
+  factory Consumer._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) {
+      return null;
+    }
+    return new Consumer.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    if (disabled != null) {
+      json['disabled'] = null; // TODO convert disabled;
+    }
+    if (buildingState != null) {
+      json['buildingState'] = null; // TODO convert buildingState;
+    }
+    if (demandBased != null) {
+      json['demandBased'] = null; // TODO convert demandBased;
+    }
+    if (heatingLoad != null) {
+      json['heatingLoad'] = heatingLoad;
+    }
+    if (waterFraction != null) {
+      json['waterFraction'] = waterFraction;
+    }
+    if (loadHours != null) {
+      json['loadHours'] = loadHours;
+    }
+    if (heatingLimit != null) {
+      json['heatingLimit'] = heatingLimit;
+    }
+    if (floorSpace != null) {
+      json['floorSpace'] = floorSpace;
+    }
+    if (fuelConsumptions != null) {
+      json['fuelConsumptions'] = null; // TODO convert fuelConsumptions;
+    }
+    if (interruptions != null) {
+      json['interruptions'] = null; // TODO convert interruptions;
+    }
+    if (loadProfiles != null) {
+      json['loadProfiles'] = null; // TODO convert loadProfiles;
+    }
+    if (location != null) {
+      json['location'] = null; // TODO convert location;
+    }
+    if (transferStation != null) {
+      json['transferStation'] = null; // TODO convert transferStation;
+    }
+    if (transferStationCosts != null) {
+      json['transferStationCosts'] = null; // TODO convert transferStationCosts;
     }
     return json;
   }

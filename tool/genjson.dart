@@ -2,14 +2,41 @@
 // We do not use a general code generator for the JSON bindings to be able
 // to tune them by hand.
 void main() {
-  var type = 'ProductGroup';
-  var superType = 'BaseDataEntity';
-  var modelType = 'PRODUCT_GROUP';
-  var fields = [
-    'String start',
-    'String end',
-    'String description',
-  ];
+  var type = 'ProductCosts';
+  var superType = null;
+  var modelType = null; // check _modelType!
+
+  var fieldText = '''
+	/** The purchase price of the product in EUR. */
+	@Column(name = "investment")
+	public double investment;
+
+	/** The usage duration of the product in years. */
+	@Column(name = "duration")
+	public int duration;
+
+	/** Fraction [%] of the investment that is used for repair. */
+	@Column(name = "repair")
+	public double repair;
+
+	/** Fraction [%] of the investment that is used for maintenance . */
+	@Column(name = "maintenance")
+	public double maintenance;
+
+	/** Hours per year that are used for operation of the product. */
+	@Column(name = "operation")
+	public double operation;
+  ''';
+
+  List<String> fields = [];
+  for (String fieldRow in fieldText.split('\n')) {
+    String r = fieldRow.trim();
+    if (r.startsWith('public final List')) {
+      fields.add(r.split(' ').skip(2).take(2).join(' '));
+    } else if (r.startsWith('public ')) {
+      fields.add(r.substring(7, r.length - 1));
+    }
+  }
 
   print('class $type extends $superType {');
   for (var field in fields) {
@@ -34,6 +61,31 @@ void main() {
     }
   }
   print('  }');
+
+  // from pack
+  if (modelType != null) {
+    String fromPack = '''
+
+  factory $type.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) {
+      return null;
+    }
+    var json = pack.get(ModelType.$modelType, id);
+    if (json == null) {
+      return null;
+    }
+    return new $type.fromJson(json, pack: pack);
+  }
+
+  factory $type._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) {
+      return null;
+    }
+    return new $type.fromPack(ref['id'], pack);
+  }
+    ''';
+    print(fromPack);
+  }
 
   // to json
   print('');
