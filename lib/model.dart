@@ -321,3 +321,206 @@ class Fuel extends BaseDataEntity {
 
   bool isWood() => group == FuelGroup.WOOD;
 }
+
+/// Wood amounts can be given in the different quantity types: (dry) mass, chips,
+/// logs
+enum WoodAmountType { MASS, CHIPS, LOGS }
+
+/// Get the wood amount type for the given string [value].
+WoodAmountType getWoodAmountType(String value) {
+  if (value == null) return null;
+  for (WoodAmountType wt in WoodAmountType.values) {
+    String s = wt.toString().split('\.')[1];
+    if (s == value) {
+      return wt;
+    }
+  }
+  return null;
+}
+
+class BufferTank extends AbstractProduct {
+  double volume;
+  double diameter;
+  double height;
+  double insulationThickness;
+
+  BufferTank();
+
+  BufferTank.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    volume = json['volume'];
+    diameter = json['diameter'];
+    height = json['height'];
+    insulationThickness = json['insulationThickness'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    if (volume != null) {
+      json['volume'] = volume;
+    }
+    if (diameter != null) {
+      json['diameter'] = diameter;
+    }
+    if (height != null) {
+      json['height'] = height;
+    }
+    if (insulationThickness != null) {
+      json['insulationThickness'] = insulationThickness;
+    }
+    return json;
+  }
+}
+
+enum BuildingType {
+	SINGLE_FAMILY_HOUSE,
+	MULTI_FAMILY_HOUSE,
+	BLOCK_OF_FLATS,
+	TERRACE_HOUSE,
+	TOWER_BLOCK,
+	SCHOOL,
+	KINDERGARDEN,
+	OFFICE_BUILDING,
+	HOSPITAL,
+	NURSING_HOME,
+	RESTAURANT,
+	HOTEL,
+	COMMERCIAL_BUILDING,
+	FERMENTER,
+	OTHER
+}
+
+/// Get the building type for the given string [value].
+BuildingType getBuildingType(String value) {
+  if (value == null) return null;
+  for (BuildingType bt in BuildingType.values) {
+    String s = bt.toString().split('\.')[1];
+    if (s == value) {
+      return bt;
+    }
+  }
+  return null;
+}
+
+class BuildingState extends BaseDataEntity {
+  int index;
+  bool isDefault;
+  BuildingType type;
+  double heatingLimit;
+  double antifreezingTemperature;
+  double waterFraction;
+  int loadHours;
+
+  BuildingState();
+
+  BuildingState.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    index = json['index'];
+    isDefault = json['isDefault'];
+    if (json['type'] != null) {
+      type = getBuildingType(json['type']);
+    }
+    heatingLimit = json['heatingLimit'];
+    antifreezingTemperature = json['antifreezingTemperature'];
+    waterFraction = json['waterFraction'];
+    loadHours = json['loadHours'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    if (index != null) {
+      json['index'] = index;
+    }
+    if (isDefault != null) {
+      json['isDefault'] = isDefault;
+    }
+    if (type != null) {
+      json['type'] = type.toString().split('\.')[1];
+    }
+    if (heatingLimit != null) {
+      json['heatingLimit'] = heatingLimit;
+    }
+    if (antifreezingTemperature != null) {
+      json['antifreezingTemperature'] = antifreezingTemperature;
+    }
+    if (waterFraction != null) {
+      json['waterFraction'] = waterFraction;
+    }
+    if (loadHours != null) {
+      json['loadHours'] = loadHours;
+    }
+    return json;
+  }
+}
+
+class FuelConsumption extends AbstractEntity {
+  Fuel fuel;
+  double amount;
+  double utilisationRate;
+  WoodAmountType woodAmountType;
+  double waterContent;
+
+  FuelConsumption();
+
+  FuelConsumption.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    if (json['fuel'] != null) {
+      fuel = new Fuel.fromJson(json['fuel']);
+    }
+    amount = json['amount'];
+    utilisationRate = json['utilisationRate'];
+    if (json['woodAmountType'] != null) {
+      woodAmountType = getWoodAmountType(json['woodAmountType']);
+    }
+    waterContent = json['waterContent'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    if (fuel != null) {
+      json['fuel'] = fuel.toJson();
+    }
+    if (amount != null) {
+      json['amount'] = amount;
+    }
+    if (utilisationRate != null) {
+      json['utilisationRate'] = utilisationRate;
+    }
+    if (woodAmountType != null) {
+      json['woodAmountType'] = woodAmountType.toString().split('\.')[1];
+    }
+    if (waterContent != null) {
+      json['waterContent'] = waterContent;
+    }
+    return json;
+  }
+}
+
+class TimeInterval extends AbstractEntity {
+  String start;
+  String end;
+  String description;
+
+  TimeInterval();
+
+  TimeInterval.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    start = json['start'];
+    end = json['end'];
+    description = json['description'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    var json = super.toJson();
+    if (start != null) {
+      json['start'] = start;
+    }
+    if (end != null) {
+      json['end'] = end;
+    }
+    if (description != null) {
+      json['description'] = description;
+    }
+    return json;
+  }
+}

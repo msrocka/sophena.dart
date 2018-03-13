@@ -2,17 +2,15 @@
 // We do not use a general code generator for the JSON bindings to be able
 // to tune them by hand.
 void main() {
-  var type = 'Fuel';
+  var type = 'LoadProfile';
+  var superType = 'RootEntity';
   var fields = [
-    'String unit',
-    'double calorificValue',
-    'double density',
-    'FuelGroup group',
-    'double co2Emissions',
-    'double primaryEnergyFactor',
+    'String start',
+    'String end',
+    'String description',
   ];
 
-  print('class $type extends ? {');
+  print('class $type extends $superType {');
   for (var field in fields) {
     print('  ' + field + ';');
   }
@@ -59,5 +57,5 @@ void main() {
 
 bool _primitive(String type) {
   String t = type.toLowerCase();
-  return ['string', 'double', 'int'].contains(t);
+  return ['string', 'double', 'int', 'bool'].contains(t);
 }
