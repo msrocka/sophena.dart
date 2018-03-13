@@ -1,5 +1,4 @@
-import 'package:sophena/io.dart';
-import 'package:sophena/model.dart';
+import 'package:sophena/sophena.dart';
 
 // an example for reading data from a Sophena data package.
 void main() {

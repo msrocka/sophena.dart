@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 
-import 'model.dart';
+import 'enums.dart';
 
 class DataPack {
   Archive _archive;

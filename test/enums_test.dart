@@ -1,4 +1,4 @@
-import 'package:sophena/model.dart';
+import 'package:sophena/sophena.dart';
 import 'package:test/test.dart';
 
 void main() {
