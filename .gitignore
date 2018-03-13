@@ -3,3 +3,4 @@ doc/api/
 *.lock
 .pub/
 .dart_tool/
+.vscode/

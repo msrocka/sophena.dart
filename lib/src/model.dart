@@ -15,7 +15,7 @@ abstract class AbstractEntity {
   /// given, referenced root entities will be created from the respective
   /// content of the data pack.
   AbstractEntity.fromJson(Map<String, dynamic> json, {DataPack pack}) {
-    id = json[id];
+    id = json['id'];
   }
 
   /// Creates a map object with primitives that can be converted to json.
@@ -780,7 +780,7 @@ class Consumer extends RootEntity {
     if (json['location'] != null) {
       location = new Location.fromJson(json['location'], pack: pack);
     }
-    
+
     if (json['transferStation'] != null) {
       transferStation =
           new TransferStation._fromRef(json['transferStation'], pack);
