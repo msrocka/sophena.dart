@@ -716,7 +716,7 @@ class Consumer extends RootEntity {
     w.list('loadProfiles', loadProfiles);
     w.obj('location', location);
     w.refObj('transferStation', name);
-    w.refObj('transferStationCosts', name);
+    w.obj('transferStationCosts', name);
     return json;
   }
 }
