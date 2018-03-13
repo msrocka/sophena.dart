@@ -105,6 +105,17 @@ enum FuelGroup {
   WOOD
 }
 
+FuelGroup getFuelGroup(String val) {
+  if (val == null) return null;
+  for (FuelGroup fg in FuelGroup.values) {
+    String s = fg.toString().split('\.')[1];
+    if (s == val) {
+      return fg;
+    }
+  }
+  return null;
+}
+
 class Fuel extends BaseDataEntity {
   /// The standard unit of the fuel (e.g. L, m3, kg).
   String unit;
@@ -121,6 +132,38 @@ class Fuel extends BaseDataEntity {
   double co2Emissions;
 
   double primaryEnergyFactor;
+
+  Fuel();
+
+  Fuel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    description = json['description'];
+    isProtected = json['isProtected'];
+    unit = json['unit'];
+    calorificValue = json['calorificValue'];
+    density = json['density'];
+    co2Emissions = json['co2Emissions'];
+    primaryEnergyFactor = json['primaryEnergyFactor'];
+    group = getFuelGroup(json['group']);
+  }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['id'] = id;
+    json['name'] = name;
+    json['description'] = description;
+    json['isProtected'] = isProtected;
+    json['unit'] = unit;
+    json['calorificValue'] = calorificValue;
+    json['density'] = density;
+    json['co2Emissions'] = co2Emissions;
+    json['primaryEnergyFactor'] = primaryEnergyFactor;
+    if (group != null) {
+      json['group'] = group.toString().split('\.')[1];
+    }
+    return json;
+  }
 
   bool isWood() => group == FuelGroup.WOOD;
 }
