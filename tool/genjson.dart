@@ -120,20 +120,14 @@ void main() {
     String fromPack = '''
 
   factory $type.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) {
-      return null;
-    }
+    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.$modelType, id);
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return new $type.fromJson(json, pack: pack);
   }
 
   factory $type._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) {
-      return null;
-    }
+    if (ref == null) return null;
     return new $type.fromPack(ref['id'], pack);
   }
     ''';

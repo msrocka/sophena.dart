@@ -121,20 +121,14 @@ class Manufacturer extends BaseDataEntity {
   }
 
   factory Manufacturer.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) {
-      return null;
-    }
+    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.MANUFACTURER, id);
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return new Manufacturer.fromJson(json, pack: pack);
   }
 
   factory Manufacturer._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) {
-      return null;
-    }
+    if (ref == null) return null;
     return new Manufacturer.fromPack(ref['id'], pack);
   }
 
@@ -177,20 +171,14 @@ class ProductGroup extends BaseDataEntity {
   }
 
   factory ProductGroup.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) {
-      return null;
-    }
+    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.PRODUCT_GROUP, id);
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return new ProductGroup.fromJson(json, pack: pack);
   }
 
   factory ProductGroup._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) {
-      return null;
-    }
+    if (ref == null) return null;
     return new ProductGroup.fromPack(ref['id'], pack);
   }
 
@@ -273,20 +261,14 @@ class Fuel extends BaseDataEntity {
   }
 
   factory Fuel.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) {
-      return null;
-    }
+    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.FUEL, id);
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return new Fuel.fromJson(json, pack: pack);
   }
 
   factory Fuel._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) {
-      return null;
-    }
+    if (ref == null) return null;
     return new Fuel.fromPack(ref['id'], pack);
   }
 
@@ -323,20 +305,14 @@ class BufferTank extends AbstractProduct {
   }
 
   factory BufferTank.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) {
-      return null;
-    }
+    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.BUFFER, id);
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return new BufferTank.fromJson(json, pack: pack);
   }
 
   factory BufferTank._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) {
-      return null;
-    }
+    if (ref == null) return null;
     return new BufferTank.fromPack(ref['id'], pack);
   }
 
@@ -377,20 +353,14 @@ class BuildingState extends BaseDataEntity {
   }
 
   factory BuildingState.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) {
-      return null;
-    }
+    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.BUILDING_STATE, id);
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return new BuildingState.fromJson(json, pack: pack);
   }
 
   factory BuildingState._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) {
-      return null;
-    }
+    if (ref == null) return null;
     return new BuildingState.fromPack(ref['id'], pack);
   }
 
@@ -543,20 +513,14 @@ class TransferStation extends AbstractProduct {
   }
 
   factory TransferStation.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) {
-      return null;
-    }
+    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.TRANSFER_STATION, id);
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return new TransferStation.fromJson(json, pack: pack);
   }
 
   factory TransferStation._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) {
-      return null;
-    }
+    if (ref == null) return null;
     return new TransferStation.fromPack(ref['id'], pack);
   }
 
@@ -682,20 +646,14 @@ class Consumer extends RootEntity {
   }
 
   factory Consumer.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) {
-      return null;
-    }
+    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.CONSUMER, id);
-    if (json == null) {
-      return null;
-    }
+    if (json == null) return null;
     return new Consumer.fromJson(json, pack: pack);
   }
 
   factory Consumer._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) {
-      return null;
-    }
+    if (ref == null) return null;
     return new Consumer.fromPack(ref['id'], pack);
   }
 
