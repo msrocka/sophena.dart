@@ -92,3 +92,33 @@ WoodAmountType getWoodAmountType(String value) {
   }
   return null;
 }
+
+enum BuildingType {
+  SINGLE_FAMILY_HOUSE,
+  MULTI_FAMILY_HOUSE,
+  BLOCK_OF_FLATS,
+  TERRACE_HOUSE,
+  TOWER_BLOCK,
+  SCHOOL,
+  KINDERGARDEN,
+  OFFICE_BUILDING,
+  HOSPITAL,
+  NURSING_HOME,
+  RESTAURANT,
+  HOTEL,
+  COMMERCIAL_BUILDING,
+  FERMENTER,
+  OTHER
+}
+
+/// Get the building type for the given string [value].
+BuildingType getBuildingType(String value) {
+  if (value == null) return null;
+  for (BuildingType bt in BuildingType.values) {
+    String s = bt.toString().split('\.')[1];
+    if (s == value) {
+      return bt;
+    }
+  }
+  return null;
+}

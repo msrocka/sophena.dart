@@ -1,17 +1,28 @@
+import 'datapack.dart';
 import 'enums.dart';
 
 /// An abstract entity is basically just a thing that can be stored in a
-/// database.
+/// Sophena database or data package.
 abstract class AbstractEntity {
   String id;
 
   AbstractEntity();
 
-  AbstractEntity.fromJson(Map<String, dynamic> json) {
+  /// Creates an instance from the given [json] object.
+  ///
+  /// It is strongly intended that sub-classes extend this constructor by adding
+  /// the sub-class specific fields from the json object. If a data [pack] is
+  /// given, referenced root entities will be created from the respective
+  /// content of the data pack.
+  AbstractEntity.fromJson(Map<String, dynamic> json, {DataPack pack}) {
     id = json[id];
   }
 
-  Map<String, dynamic> toJson() {
+  /// Creates a map object with primitives that can be converted to json.
+  ///
+  /// If a data [pack] is given, referenced root entities will be also converted
+  /// and written to the data pack during the conversion.
+  Map<String, dynamic> toJson({DataPack pack}) {
     Map<String, dynamic> json = {};
     json['id'] = id;
     json['@type'] = this.runtimeType.toString();
@@ -20,28 +31,59 @@ abstract class AbstractEntity {
 }
 
 /// A root entity is a stand-alone entity with a name and description.
+///
+/// Typically root entities can be referenced from multiple other entities and
+/// are stored in separate files in a data pack.
 abstract class RootEntity extends AbstractEntity {
   String name;
   String description;
 
   RootEntity();
 
-  RootEntity.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  RootEntity.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     name = json['name'];
     description = json['description'];
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (name != null) {
       json['name'] = name;
     }
     if (description != null) {
       json['description'] = description;
     }
-    return super.toJson();
+    return json;
   }
+
+  /// Save the entity to the given data pack.
+  void save(DataPack pack) {
+    if (pack == null) {
+      return;
+    }
+    var json = toJson(pack: pack);
+    pack.put(_modelType(this), json);
+  }
+}
+
+ModelType _modelType<T extends RootEntity>(T e) {
+  if (e is Manufacturer) return ModelType.MANUFACTURER;
+  if (e is ProductGroup) return ModelType.PRODUCT_GROUP;
+  // TODO: other model types
+  return null;
+}
+
+Map<String, dynamic> _toRef<T extends RootEntity>(T e, DataPack pack) {
+  if (e == null || e.id == null) {
+    return null;
+  }
+  var ref = {'id': e.id, '@type': e.runtimeType.toString(), 'name': e.name};
+  if (pack != null) {
+    e.save(pack);
+  }
+  return ref;
 }
 
 /// Instances of this class are entities that are located in the base data. Base
@@ -56,13 +98,14 @@ abstract class BaseDataEntity extends RootEntity {
 
   BaseDataEntity();
 
-  BaseDataEntity.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  BaseDataEntity.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     isProtected = json['isProtected'];
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     json['isProtected'] = isProtected;
     return json;
   }
@@ -74,14 +117,15 @@ class Manufacturer extends BaseDataEntity {
 
   Manufacturer();
 
-  Manufacturer.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  Manufacturer.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     address = json['address'];
     url = json['url'];
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (address != null) {
       json['address'] = address;
     }
@@ -110,7 +154,8 @@ class ProductGroup extends BaseDataEntity {
 
   ProductGroup();
 
-  ProductGroup.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  ProductGroup.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     type = getProductType(json['type']);
     index = json['index'];
     duration = json['duration'];
@@ -120,8 +165,8 @@ class ProductGroup extends BaseDataEntity {
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    var json = super.toJson();
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
     if (type != null) {
       json['type'] = type.toString().split('\.')[1];
     }
@@ -153,17 +198,18 @@ abstract class AbstractProduct extends BaseDataEntity {
 
   AbstractProduct();
 
-  AbstractProduct.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+  AbstractProduct.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
     purchasePrice = json['purchasePrice'];
     url = json['url'];
     if (json['manufacturer'] != null) {
-      manufacturer = new Manufacturer.fromJson(json['manufacturer']);
+      manufacturer = new Manufacturer._packRef(json['manufacturer'], pack);
     }
     if (json['type'] != null) {
       type = getProductType(json['type']);
     }
     if (json['group'] != null) {
-      group = new ProductGroup.fromJson(json['group']);
+      group = new ProductGroup._packRef(json['group'], pack);
     }
   }
 
@@ -278,36 +324,6 @@ class BufferTank extends AbstractProduct {
     }
     return json;
   }
-}
-
-enum BuildingType {
-	SINGLE_FAMILY_HOUSE,
-	MULTI_FAMILY_HOUSE,
-	BLOCK_OF_FLATS,
-	TERRACE_HOUSE,
-	TOWER_BLOCK,
-	SCHOOL,
-	KINDERGARDEN,
-	OFFICE_BUILDING,
-	HOSPITAL,
-	NURSING_HOME,
-	RESTAURANT,
-	HOTEL,
-	COMMERCIAL_BUILDING,
-	FERMENTER,
-	OTHER
-}
-
-/// Get the building type for the given string [value].
-BuildingType getBuildingType(String value) {
-  if (value == null) return null;
-  for (BuildingType bt in BuildingType.values) {
-    String s = bt.toString().split('\.')[1];
-    if (s == value) {
-      return bt;
-    }
-  }
-  return null;
 }
 
 class BuildingState extends BaseDataEntity {

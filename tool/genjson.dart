@@ -2,8 +2,9 @@
 // We do not use a general code generator for the JSON bindings to be able
 // to tune them by hand.
 void main() {
-  var type = 'LoadProfile';
-  var superType = 'RootEntity';
+  var type = 'ProductGroup';
+  var superType = 'BaseDataEntity';
+  var modelType = 'PRODUCT_GROUP';
   var fields = [
     'String start',
     'String end',
@@ -19,7 +20,8 @@ void main() {
 
   // from json
   print('');
-  print('  $type.fromJson(Map<String, dynamic> json) : super.fromJson(json) {');
+  print(
+      '  $type.fromJson(Map<String, dynamic> json, {DataPack pack}) : super.fromJson(json, pack: pack) {');
   for (var field in fields) {
     var type = field.split(' ')[0];
     var name = field.split(' ')[1];
@@ -36,8 +38,8 @@ void main() {
   // to json
   print('');
   print('  @override');
-  print('  Map<String, dynamic> toJson() {');
-  print('    var json = super.toJson();');
+  print('  Map<String, dynamic> toJson({DataPack pack}) {');
+  print('    var json = super.toJson(pack: pack);');
   for (var field in fields) {
     var type = field.split(' ')[0];
     var name = field.split(' ')[1];
