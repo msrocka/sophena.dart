@@ -588,9 +588,6 @@ class Consumer extends RootEntity {
   Consumer.fromJson(Map<String, dynamic> json, {DataPack pack})
       : super.fromJson(json, pack: pack) {
     disabled = json['disabled'];
-    if (json['buildingState'] != null) {
-      buildingState = new BuildingState._fromRef(json['buildingState'], pack);
-    }
     demandBased = json['demandBased'];
     heatingLoad = json['heatingLoad'];
     waterFraction = json['waterFraction'];
@@ -605,18 +602,14 @@ class Consumer extends RootEntity {
     loadProfiles = jsonEach(json['loadProfiles'],
         (ref) => new LoadProfile.fromJson(ref, pack: pack));
 
-    if (json['location'] != null) {
-      location = new Location.fromJson(json['location'], pack: pack);
-    }
-
-    if (json['transferStation'] != null) {
-      transferStation =
-          new TransferStation._fromRef(json['transferStation'], pack);
-    }
-    if (json['transferStationCosts'] != null) {
-      transferStationCosts =
-          new ProductCosts.fromJson(json['transferStationCosts']);
-    }
+    buildingState = jsonObj(
+        json['buildingState'], (obj) => new BuildingState._fromRef(obj, pack));
+    location = jsonObj(
+        json['location'], (obj) => new Location.fromJson(obj, pack: pack));
+    transferStation = jsonObj(json['transferStation'],
+        (obj) => new TransferStation._fromRef(obj, pack));
+    transferStationCosts = jsonObj(
+        json['transferStationCosts'], (obj) => new ProductCosts.fromJson(obj));
   }
 
   factory Consumer.fromPack(String id, DataPack pack) {

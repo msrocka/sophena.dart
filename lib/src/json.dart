@@ -85,16 +85,27 @@ class JsonWriter {
 }
 
 List<T> jsonEach<T>(dynamic jsonList, T fn(Map<String, dynamic> m)) {
-  if (jsonList == null || jsonList is! List<Map<String, dynamic>>) {
+  if (jsonList is! List<Map<String, dynamic>>) {
     return null;
   }
   List<T> list = [];
   for (var json in jsonList) {
-    if (json == null) continue;
+    if (json is! Map<String, dynamic>) {
+      continue;
+    }
     T e = fn(json);
-    if (e != null) {
+    if (e is T) {
       list.add(e);
     }
   }
   return list;
+}
+
+/// Applies the given conversion function [fn] on the given [json] object after
+/// checking that it has the correct type.
+T jsonObj<T>(dynamic json, T fn(Map<String, dynamic> json)) {
+  if (json is! Map<String, dynamic>) {
+    return null;
+  }
+  return fn(json as Map<String, dynamic>);
 }
