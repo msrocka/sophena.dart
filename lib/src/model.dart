@@ -79,6 +79,8 @@ ModelType modelType<T extends RootEntity>(T e) {
   if (e is LoadProfile) return ModelType.LOAD_PROFILE;
   if (e is TransferStation) return ModelType.TRANSFER_STATION;
   if (e is Consumer) return ModelType.CONSUMER;
+  if (e is FlueGasCleaning) return ModelType.FLUE_GAS_CLEANING;
+  if (e is Pipe) return ModelType.PIPE;
   // TODO: other model types
   return null;
 }
@@ -144,6 +146,12 @@ class Manufacturer extends BaseDataEntity {
 
 class ProductGroup extends BaseDataEntity {
   ProductType type;
+
+  /// Product groups that contain heat producers must have a fuel group
+  /// assigned.
+  FuelGroup fuelGroup;
+
+  /// This is just for ordering the groups in the user interface.
   int index;
 
   /// Default usage duration of this product group given in years.
@@ -163,6 +171,7 @@ class ProductGroup extends BaseDataEntity {
   ProductGroup.fromJson(Map<String, dynamic> json, {DataPack pack})
       : super.fromJson(json, pack: pack) {
     type = getProductType(json['type']);
+    fuelGroup = getFuelGroup(json['fuelGroup']);
     index = json['index'];
     duration = json['duration'];
     repair = json['repair'];
@@ -187,6 +196,7 @@ class ProductGroup extends BaseDataEntity {
     var json = super.toJson(pack: pack);
     var w = new JsonWriter(pack, json);
     w.enumer('type', type);
+    w.enumer('fuelGroup', fuelGroup);
     w.val('index', index);
     w.val('duration', duration);
     w.val('repair', repair);
@@ -236,15 +246,23 @@ class Fuel extends BaseDataEntity {
   /// The calorific value in kWh per 1 standard unit.
   double calorificValue;
 
-  /// Only for wood fuels: density in kg per solid cubic meter.
+  /// Density of a wood fuel in kg per solid cubic meter.
+  ///
+  /// This is only used for wood fuels in order to convert different quantity
+  /// types into each other.
   double density;
 
+  /// Each fuel belongs to a group with equal properties that can be used in the
+  /// same heat producer.
   FuelGroup group;
 
-  /// Gramme CO2 emissions per kWh fuel energy.
+  /// CO2 emissions in g/kWh.
   double co2Emissions;
 
   double primaryEnergyFactor;
+
+  /// The ash content (in %) for wood based fuels.
+  double ashContent;
 
   Fuel();
 
@@ -642,6 +660,169 @@ class Consumer extends RootEntity {
     w.obj('location', location);
     w.refObj('transferStation', name);
     w.obj('transferStationCosts', name);
+    return json;
+  }
+}
+
+class FlueGasCleaning extends AbstractProduct {
+  String flueGasCleaningType;
+  double maxVolumeFlow;
+  String fuel;
+  double maxProducerPower;
+  double maxElectricityConsumption;
+  String cleaningMethod;
+  String cleaningType;
+  double separationEfficiency;
+
+  FlueGasCleaning();
+
+  FlueGasCleaning.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    flueGasCleaningType = json['flueGasCleaningType'];
+    maxVolumeFlow = json['maxVolumeFlow'];
+    fuel = json['fuel'];
+    maxProducerPower = json['maxProducerPower'];
+    maxElectricityConsumption = json['maxElectricityConsumption'];
+    cleaningMethod = json['cleaningMethod'];
+    cleaningType = json['cleaningType'];
+    separationEfficiency = json['separationEfficiency'];
+  }
+
+  factory FlueGasCleaning.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.FLUE_GAS_CLEANING, id);
+    if (json == null) return null;
+    return new FlueGasCleaning.fromJson(json, pack: pack);
+  }
+
+  factory FlueGasCleaning._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new FlueGasCleaning.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('flueGasCleaningType', flueGasCleaningType);
+    w.val('maxVolumeFlow', maxVolumeFlow);
+    w.val('fuel', fuel);
+    w.val('maxProducerPower', maxProducerPower);
+    w.val('maxElectricityConsumption', maxElectricityConsumption);
+    w.val('cleaningMethod', cleaningMethod);
+    w.val('cleaningType', cleaningType);
+    w.val('separationEfficiency', separationEfficiency);
+    return json;
+  }
+}
+
+class FlueGasCleaningEntry extends AbstractEntity {
+  FlueGasCleaning product;
+  ProductCosts costs;
+
+  FlueGasCleaningEntry();
+
+  FlueGasCleaningEntry.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    product = jsonObj(
+        json['product'], (obj) => new FlueGasCleaning._fromRef(obj, pack));
+    costs = jsonObj(json['costs'], (obj) => new ProductCosts.fromJson(obj));
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.refObj('product', product);
+    w.obj('costs', costs);
+    return json;
+  }
+}
+
+class FuelSpec {
+  Fuel fuel;
+  WoodAmountType woodAmountType;
+  double waterContent;
+  double pricePerUnit;
+  double taxRate;
+
+  FuelSpec();
+
+  FuelSpec.fromJson(Map<String, dynamic> json, {DataPack pack}) {
+    fuel = jsonObj(json['fuel'], (obj) => new Fuel._fromRef(obj, pack));
+    if (json['woodAmountType'] != null) {
+      woodAmountType = getWoodAmountType(json['woodAmountType']);
+    }
+    waterContent = json['waterContent'];
+    pricePerUnit = json['pricePerUnit'];
+    taxRate = json['taxRate'];
+  }
+
+  Map<String, dynamic> toJson({DataPack pack}) {
+    Map<String, dynamic> json = {};
+    var w = new JsonWriter(pack, json);
+    w.refObj('fuel', fuel);
+    w.enumer('woodAmountType', woodAmountType);
+    w.val('waterContent', waterContent);
+    w.val('pricePerUnit', pricePerUnit);
+    w.val('taxRate', taxRate);
+    return json;
+  }
+}
+
+class Pipe extends AbstractProduct {
+  String material;
+  PipeType pipeType;
+  double uValue;
+  double innerDiameter;
+  double outerDiameter;
+  double totalDiameter;
+  String deliveryType;
+  double maxTemperature;
+  double maxPressure;
+
+  Pipe();
+
+  Pipe.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    material = json['material'];
+    if (json['pipeType'] != null) {
+      pipeType = getPipeType(json['pipeType']);
+    }
+    uValue = json['uValue'];
+    innerDiameter = json['innerDiameter'];
+    outerDiameter = json['outerDiameter'];
+    totalDiameter = json['totalDiameter'];
+    deliveryType = json['deliveryType'];
+    maxTemperature = json['maxTemperature'];
+    maxPressure = json['maxPressure'];
+  }
+
+  factory Pipe.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.PIPE, id);
+    if (json == null) return null;
+    return new Pipe.fromJson(json, pack: pack);
+  }
+
+  factory Pipe._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new Pipe.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('material', material);
+    w.enumer('pipeType', pipeType);
+    w.val('uValue', uValue);
+    w.val('innerDiameter', innerDiameter);
+    w.val('outerDiameter', outerDiameter);
+    w.val('totalDiameter', totalDiameter);
+    w.val('deliveryType', deliveryType);
+    w.val('maxTemperature', maxTemperature);
+    w.val('maxPressure', maxPressure);
     return json;
   }
 }

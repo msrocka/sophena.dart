@@ -28,6 +28,7 @@ enum ProductType {
   COGENERATION_PLANT,
   SOLAR_THERMAL_PLANT,
   ELECTRIC_HEAT_GENERATOR,
+  OTHER_HEAT_SOURCE,
   BOILER_ACCESSORIES,
   HEAT_RECOVERY,
   FLUE_GAS_CLEANING,
@@ -53,6 +54,10 @@ ProductType getProductType(String value) {
   return null;
 }
 
+/// Fuels with the same properties are grouped into fuel groups.
+///
+/// For a heat producer, a fuel can be only selected from the group that is
+/// defined in the product group of the producer.
 enum FuelGroup {
   BIOGAS,
   NATURAL_GAS,
@@ -118,6 +123,20 @@ BuildingType getBuildingType(String value) {
     String s = bt.toString().split('\.')[1];
     if (s == value) {
       return bt;
+    }
+  }
+  return null;
+}
+
+enum PipeType { UNO, DUO }
+
+/// Get the pipe type for the given string [value].
+PipeType getPipeType(String value) {
+  if (value == null) return null;
+  for (PipeType pt in PipeType.values) {
+    String s = pt.toString().split('\.')[1];
+    if (s == value) {
+      return pt;
     }
   }
   return null;

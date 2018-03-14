@@ -2,69 +2,38 @@
 // We do not use a general code generator for the JSON bindings to be able
 // to tune them by hand.
 void main() {
-  var type = 'ProductCosts';
-  var superType = null;
-  var modelType = null; // check _modelType!
+  var type = 'Pipe';
+  var superType = 'AbstractProduct';
+  var modelType = 'PIPE'; // check _modelType!
 
   var fieldText = '''
-@Column(name = "is_disabled")
-	public boolean disabled;
+@Column(name = "material")
+	public String material;
 
-	@OneToOne
-	@JoinColumn(name = "f_building_state")
-	public BuildingState buildingState;
+	@Column(name = "pipe_type")
+	public PipeType pipeType;
 
-	@Column(name = "demand_based")
-	public boolean demandBased;
+	@Column(name = "u_value")
+	public double uValue;
 
-	@Column(name = "heating_load")
-	public double heatingLoad;
+	@Column(name = "inner_diameter")
+	public double innerDiameter;
 
-	@Column(name = "water_fraction")
-	public double waterFraction;
+	@Column(name = "outer_diameter")
+	public double outerDiameter;
 
-	@Column(name = "load_hours")
-	public int loadHours;
+	@Column(name = "total_diameter")
+	public double totalDiameter;
 
-	@Column(name = "heating_limit")
-	public double heatingLimit;
+	@Column(name = "delivery_type")
+	public String deliveryType;
 
-	@Column(name = "floor_space")
-	public double floorSpace;
+	@Column(name = "max_temperature")
+	public Double maxTemperature;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_consumer")
-	public final List<FuelConsumption> fuelConsumptions = new ArrayList<>();
+	@Column(name = "max_pressure")
+	public Double maxPressure;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_owner")
-	public final List<TimeInterval> interruptions = new ArrayList<>();
-
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_consumer")
-	public final List<LoadProfile> loadProfiles = new ArrayList<>();
-
-	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "f_location")
-	public Location location;
-
-	@OneToOne
-	@JoinColumn(name = "f_transfer_station")
-	public TransferStation transferStation;
-
-	@Embedded
-	@AttributeOverrides({
-			@AttributeOverride(name = "investment",
-					column = @Column(name = "transfer_station_investment")),
-			@AttributeOverride(name = "duration",
-					column = @Column(name = "transfer_station_duration")),
-			@AttributeOverride(name = "repair",
-					column = @Column(name = "transfer_station_repair")),
-			@AttributeOverride(name = "maintenance",
-					column = @Column(name = "transfer_station_maintenance")),
-			@AttributeOverride(name = "operation",
-					column = @Column(name = "transfer_station_operation")) })
-	public ProductCosts transferStationCosts;
   ''';
 
   List<String> fields = [];
@@ -148,7 +117,7 @@ void main() {
     } else if (type.startsWith('List<')) {
       print("    w.list('$name', $name); || w.refList('$name', $name);");
     } else {
-      print("    w.obj('$name', $name); || w.refObj('$name', name); || w.enumer('$name', $name);");
+      print("    w.obj('$name', $name); || w.refObj('$name', $name); || w.enumer('$name', $name);");
     }
   }
   print('    return json;');
