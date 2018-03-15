@@ -2,37 +2,63 @@
 // We do not use a general code generator for the JSON bindings to be able
 // to tune them by hand.
 void main() {
-  var type = 'Pipe';
-  var superType = 'AbstractProduct';
-  var modelType = 'PIPE'; // check _modelType!
+  var type = 'HeatNet';
+  var superType = 'AbstractEntity';
+  var modelType = null; // check _modelType!
 
   var fieldText = '''
-@Column(name = "material")
-	public String material;
+@Column(name = "net_length")
+	public double length;
 
-	@Column(name = "pipe_type")
-	public PipeType pipeType;
+	@Column(name = "supply_temperature")
+	public double supplyTemperature;
 
-	@Column(name = "u_value")
-	public double uValue;
+	@Column(name = "return_temperature")
+	public double returnTemperature;
 
-	@Column(name = "inner_diameter")
-	public double innerDiameter;
+	@Column(name = "simultaneity_factor")
+	public double simultaneityFactor;
 
-	@Column(name = "outer_diameter")
-	public double outerDiameter;
+	@Column(name = "smoothing_factor")
+	public double smoothingFactor;
 
-	@Column(name = "total_diameter")
-	public double totalDiameter;
+	@Column(name = "max_load")
+	public Double maxLoad;
 
-	@Column(name = "delivery_type")
-	public String deliveryType;
+	@OneToOne
+	@JoinColumn(name = "f_buffer_tank")
+	public BufferTank bufferTank;
 
-	@Column(name = "max_temperature")
-	public Double maxTemperature;
+	@Column(name = "buffer_tank_volume")
+	public double bufferTankVolume;
 
-	@Column(name = "max_pressure")
-	public Double maxPressure;
+	@Column(name = "max_buffer_load_temperature")
+	public double maxBufferLoadTemperature;
+
+	@Column(name = "lower_buffer_load_temperature")
+	public Double lowerBufferLoadTemperature;
+
+	@Column(name = "buffer_loss")
+	public double bufferLoss;
+
+	@Embedded
+	public ProductCosts bufferTankCosts;
+
+	@Column(name = "power_loss")
+	public double powerLoss;
+
+	@Column(name = "with_interruption")
+	public boolean withInterruption;
+
+	@Column(name = "interruption_start")
+	public String interruptionStart;
+
+	@Column(name = "interruption_end")
+	public String interruptionEnd;
+
+	@JoinColumn(name = "f_heat_net")
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	public final List<HeatNetPipe> pipes = new ArrayList<>();
 
   ''';
 
@@ -62,23 +88,9 @@ void main() {
     var name = field.split(' ')[1];
     if (_primitive(type)) {
       print("    $name = json['$name'];");
-    } else if (type.startsWith('List<')) {
-      String typeVar = _typeVar(type);
-      print("");
-      print("    if (json['$name'] != null) {");
-      print("      var refs = json['$name'] as List<Map<String, dynamic>>;");
-      print("      $name = [];");
-      print("      for (var ref in refs) {");
-      print("         var e = new $typeVar.fromJson(ref, pack: pack);");
-      print("         if (e != null) {");
-      print("             $name.add(e);");
-      print("         }");
-      print("      }");
-      print("    }");
-      print("");
     } else {
       print("    if (json['$name'] != null) {");
-      print("      $name = null; // TODO convert json['$name'];");
+      print("      $name = null; // TODO e.g. jsonObj|jsonList(json['$name'], (obj) => ?);");
       print("    }");
     }
   }

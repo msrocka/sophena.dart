@@ -826,3 +826,105 @@ class Pipe extends AbstractProduct {
     return json;
   }
 }
+
+/// This class represents the concrete use of a pipe in a heat net of a project.
+class HeatNetPipe extends AbstractEntity {
+  Pipe pipe;
+  ProductCosts costs;
+  String name;
+  double length;
+  double pricePerMeter;
+
+  HeatNetPipe();
+
+  HeatNetPipe.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    pipe = jsonObj(json['pipe'], (obj) => new Pipe._fromRef(obj, pack));
+    costs = jsonObj(json['costs'], (obj) => new ProductCosts.fromJson(obj));
+    name = json['name'];
+    length = json['length'];
+    pricePerMeter = json['pricePerMeter'];
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.refObj('pipe', pipe);
+    w.obj('costs', costs);
+    w.val('name', name);
+    w.val('length', length);
+    w.val('pricePerMeter', pricePerMeter);
+    return json;
+  }
+}
+
+class HeatNet extends AbstractEntity {
+  double length;
+  double supplyTemperature;
+  double returnTemperature;
+  double simultaneityFactor;
+  double smoothingFactor;
+  double maxLoad;
+  BufferTank bufferTank;
+  double bufferTankVolume;
+  double maxBufferLoadTemperature;
+  double lowerBufferLoadTemperature;
+  double bufferLoss;
+  ProductCosts bufferTankCosts;
+  double powerLoss;
+  bool withInterruption;
+  String interruptionStart;
+  String interruptionEnd;
+  List<HeatNetPipe> pipes;
+
+  HeatNet();
+
+  HeatNet.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    length = json['length'];
+    supplyTemperature = json['supplyTemperature'];
+    returnTemperature = json['returnTemperature'];
+    simultaneityFactor = json['simultaneityFactor'];
+    smoothingFactor = json['smoothingFactor'];
+    maxLoad = json['maxLoad'];
+    bufferTank = jsonObj(
+        json['bufferTank'], (obj) => new BufferTank._fromRef(obj, pack));
+    bufferTankVolume = json['bufferTankVolume'];
+    maxBufferLoadTemperature = json['maxBufferLoadTemperature'];
+    lowerBufferLoadTemperature = json['lowerBufferLoadTemperature'];
+    bufferLoss = json['bufferLoss'];
+    bufferTankCosts = jsonObj(
+        json['bufferTankCosts'], (obj) => new ProductCosts.fromJson(json));
+    powerLoss = json['powerLoss'];
+    withInterruption = json['withInterruption'];
+    interruptionStart = json['interruptionStart'];
+    interruptionEnd = json['interruptionEnd'];
+    pipes = jsonEach(
+        json['pipes'], (obj) => new HeatNetPipe.fromJson(obj, pack: pack));
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('length', length);
+    w.val('supplyTemperature', supplyTemperature);
+    w.val('returnTemperature', returnTemperature);
+    w.val('simultaneityFactor', simultaneityFactor);
+    w.val('smoothingFactor', smoothingFactor);
+    w.val('maxLoad', maxLoad);
+    w.refObj('bufferTank', bufferTank);
+    w.val('bufferTankVolume', bufferTankVolume);
+    w.val('maxBufferLoadTemperature', maxBufferLoadTemperature);
+    w.val('lowerBufferLoadTemperature', lowerBufferLoadTemperature);
+    w.val('bufferLoss', bufferLoss);
+    w.obj('bufferTankCosts', bufferTankCosts);
+    w.val('powerLoss', powerLoss);
+    w.val('withInterruption', withInterruption);
+    w.val('interruptionStart', interruptionStart);
+    w.val('interruptionEnd', interruptionEnd);
+    w.refList('pipes', pipes);
+    return json;
+  }
+}
