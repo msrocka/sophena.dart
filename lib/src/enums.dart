@@ -82,8 +82,7 @@ FuelGroup getFuelGroup(String value) {
   return null;
 }
 
-/// Wood amounts can be given in the different quantity types: (dry) mass, chips,
-/// logs
+/// Wood amounts can be given in the different quantity types: mass, chips, logs
 enum WoodAmountType { MASS, CHIPS, LOGS }
 
 /// Get the wood amount type for the given string [value].
