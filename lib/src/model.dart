@@ -81,6 +81,9 @@ ModelType modelType<T extends RootEntity>(T e) {
   if (e is Consumer) return ModelType.CONSUMER;
   if (e is FlueGasCleaning) return ModelType.FLUE_GAS_CLEANING;
   if (e is Pipe) return ModelType.PIPE;
+  if (e is HeatRecovery) return ModelType.HEAT_RECOVERY;
+  if (e is Boiler) return ModelType.BOILER;
+  if (e is WeatherStation) return ModelType.WEATHER_STATION;
   // TODO: other model types
   return null;
 }
@@ -925,6 +928,166 @@ class HeatNet extends AbstractEntity {
     w.val('interruptionStart', interruptionStart);
     w.val('interruptionEnd', interruptionEnd);
     w.refList('pipes', pipes);
+    return json;
+  }
+}
+
+class HeatRecovery extends AbstractProduct {
+  double power;
+  String heatRecoveryType;
+  String fuel;
+  double producerPower;
+
+  HeatRecovery();
+
+  HeatRecovery.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    power = json['power'];
+    heatRecoveryType = json['heatRecoveryType'];
+    fuel = json['fuel'];
+    producerPower = json['producerPower'];
+  }
+
+  factory HeatRecovery.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.HEAT_RECOVERY, id);
+    if (json == null) return null;
+    return new HeatRecovery.fromJson(json, pack: pack);
+  }
+
+  factory HeatRecovery._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new HeatRecovery.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('power', power);
+    w.val('heatRecoveryType', heatRecoveryType);
+    w.val('fuel', fuel);
+    w.val('producerPower', producerPower);
+    return json;
+  }
+}
+
+class ProducerProfile extends AbstractEntity {
+  List<double> minPower;
+  List<double> maxPower;
+
+  ProducerProfile();
+
+  ProducerProfile.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    minPower = json['minPower'];
+    maxPower = json['maxPower'];
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('minPower', minPower);
+    w.val('maxPower', maxPower);
+    return json;
+  }
+}
+
+class Boiler extends AbstractProduct {
+  double maxPower;
+  double minPower;
+  double efficiencyRate;
+  bool isCoGenPlant;
+  double maxPowerElectric;
+  double minPowerElectric;
+  double efficiencyRateElectric;
+
+  Boiler();
+
+  Boiler.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    maxPower = json['maxPower'];
+    minPower = json['minPower'];
+    efficiencyRate = json['efficiencyRate'];
+    isCoGenPlant = json['isCoGenPlant'];
+    maxPowerElectric = json['maxPowerElectric'];
+    minPowerElectric = json['minPowerElectric'];
+    efficiencyRateElectric = json['efficiencyRateElectric'];
+  }
+
+  factory Boiler.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.BOILER, id);
+    if (json == null) return null;
+    return new Boiler.fromJson(json, pack: pack);
+  }
+
+  factory Boiler._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new Boiler.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('maxPower', maxPower);
+    w.val('minPower', minPower);
+    w.val('efficiencyRate', efficiencyRate);
+    w.val('isCoGenPlant', isCoGenPlant);
+    w.val('maxPowerElectric', maxPowerElectric);
+    w.val('minPowerElectric', minPowerElectric);
+    w.val('efficiencyRateElectric', efficiencyRateElectric);
+    return json;
+  }
+}
+
+class WeatherStation extends BaseDataEntity {
+  double maxPower;
+  double minPower;
+  double efficiencyRate;
+  bool isCoGenPlant;
+  double maxPowerElectric;
+  double minPowerElectric;
+  double efficiencyRateElectric;
+
+  WeatherStation();
+
+  WeatherStation.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    maxPower = json['maxPower'];
+    minPower = json['minPower'];
+    efficiencyRate = json['efficiencyRate'];
+    isCoGenPlant = json['isCoGenPlant'];
+    maxPowerElectric = json['maxPowerElectric'];
+    minPowerElectric = json['minPowerElectric'];
+    efficiencyRateElectric = json['efficiencyRateElectric'];
+  }
+
+  factory WeatherStation.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.WEATHER_STATION, id);
+    if (json == null) return null;
+    return new WeatherStation.fromJson(json, pack: pack);
+  }
+
+  factory WeatherStation._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new WeatherStation.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('maxPower', maxPower);
+    w.val('minPower', minPower);
+    w.val('efficiencyRate', efficiencyRate);
+    w.val('isCoGenPlant', isCoGenPlant);
+    w.val('maxPowerElectric', maxPowerElectric);
+    w.val('minPowerElectric', minPowerElectric);
+    w.val('efficiencyRateElectric', efficiencyRateElectric);
     return json;
   }
 }

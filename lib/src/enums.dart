@@ -140,3 +140,17 @@ PipeType getPipeType(String value) {
   }
   return null;
 }
+
+enum ProducerFunction { BASE_LOAD, PEAK_LOAD }
+
+/// Get the producer function for the given string [value].
+ProducerFunction getProducerFunction(String value) {
+  if (value == null) return null;
+  for (ProducerFunction pf in ProducerFunction.values) {
+    String s = pf.toString().split('\.')[1];
+    if (s == value) {
+      return pf;
+    }
+  }
+  return null;
+}
