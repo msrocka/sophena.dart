@@ -84,7 +84,10 @@ ModelType modelType<T extends RootEntity>(T e) {
   if (e is HeatRecovery) return ModelType.HEAT_RECOVERY;
   if (e is Boiler) return ModelType.BOILER;
   if (e is WeatherStation) return ModelType.WEATHER_STATION;
-  // TODO: other model types
+  if (e is Producer) return ModelType.PRODUCER;
+  if (e is Product) return ModelType.PRODUCT;
+  if (e is CostSettings) return ModelType.COST_SETTINGS;
+  if (e is Project) return ModelType.PROJECT;
   return null;
 }
 
@@ -1088,6 +1091,284 @@ class WeatherStation extends BaseDataEntity {
     w.val('maxPowerElectric', maxPowerElectric);
     w.val('minPowerElectric', minPowerElectric);
     w.val('efficiencyRateElectric', efficiencyRateElectric);
+    return json;
+  }
+}
+
+class Producer extends RootEntity {
+  bool disabled;
+  int rank;
+  ProductGroup productGroup;
+  Boiler boiler;
+  bool hasProfile;
+  ProducerProfile profile;
+  double profileMaxPower;
+  ProducerFunction function;
+  ProductCosts costs;
+  FuelSpec fuelSpec;
+  HeatRecovery heatRecovery;
+  List<TimeInterval> interruptions;
+  ProductCosts heatRecoveryCosts;
+  double utilisationRate;
+
+  Producer();
+
+  Producer.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    disabled = json['disabled'];
+    rank = json['rank'];
+    productGroup = jsonObj(
+        json['productGroup'], (obj) => new ProductGroup._fromRef(obj, pack));
+    boiler = jsonObj(json['boiler'], (obj) => new Boiler._fromRef(obj, pack));
+    hasProfile = json['hasProfile'];
+    profile = jsonObj(json['profile'],
+        (obj) => new ProducerProfile.fromJson(obj, pack: pack));
+    profileMaxPower = json['profileMaxPower'];
+    function = getProducerFunction(json['function']);
+    costs = jsonObj(json['costs'], (obj) => new ProductCosts.fromJson(json));
+    fuelSpec = jsonObj(
+        json['fuelSpec'], (obj) => new FuelSpec.fromJson(json, pack: pack));
+    heatRecovery = jsonObj(
+        json['heatRecovery'], (obj) => new HeatRecovery._fromRef(obj, pack));
+    interruptions = jsonEach(json['interruptions'],
+        (obj) => new TimeInterval.fromJson(json, pack: pack));
+    heatRecoveryCosts = jsonObj(
+        json['heatRecoveryCosts'], (obj) => new ProductCosts.fromJson(json));
+    utilisationRate = json['utilisationRate'];
+  }
+
+  factory Producer.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.PRODUCER, id);
+    if (json == null) return null;
+    return new Producer.fromJson(json, pack: pack);
+  }
+
+  factory Producer._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new Producer.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('disabled', disabled);
+    w.val('rank', rank);
+    w.refObj('productGroup', productGroup);
+    w.refObj('boiler', boiler);
+    w.val('hasProfile', hasProfile);
+    w.obj('profile', profile);
+    w.val('profileMaxPower', profileMaxPower);
+    w.enumer('function', function);
+    w.obj('costs', costs);
+    w.obj('fuelSpec', fuelSpec);
+    w.refObj('heatRecovery', heatRecovery);
+    w.list('interruptions', interruptions);
+    w.obj('heatRecoveryCosts', heatRecoveryCosts);
+    w.val('utilisationRate', utilisationRate);
+    return json;
+  }
+}
+
+class Product extends AbstractProduct {
+  String projectId;
+
+  Product();
+
+  Product.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    projectId = json['projectId'];
+  }
+
+  factory Product.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.PRODUCT, id);
+    if (json == null) return null;
+    return new Product.fromJson(json, pack: pack);
+  }
+
+  factory Product._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new Product.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('projectId', projectId);
+    return json;
+  }
+}
+
+class ProductEntry extends AbstractEntity {
+  Product product;
+  ProductCosts costs;
+  double pricePerPiece;
+  double count;
+
+  ProductEntry();
+
+  ProductEntry.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    product =
+        jsonObj(json['product'], (obj) => new Product._fromRef(obj, pack));
+    costs = jsonObj(json['costs'], (obj) => new ProductCosts.fromJson(obj));
+    pricePerPiece = json['pricePerPiece'];
+    count = json['count'];
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.refObj('product', product);
+    w.obj('costs', costs);
+    w.val('pricePerPiece', pricePerPiece);
+    w.val('count', count);
+    return json;
+  }
+}
+
+class CostSettings extends AbstractEntity {
+  double vatRate;
+  double hourlyWage;
+  double electricityPrice;
+  double electricityRevenues;
+  double electricityDemandShare;
+  double interestRate;
+  double interestRateFunding;
+  double funding;
+  double insuranceShare;
+  double otherShare;
+  double administrationShare;
+  double investmentFactor;
+  double bioFuelFactor;
+  double fossilFuelFactor;
+  double electricityFactor;
+  double operationFactor;
+  double maintenanceFactor;
+
+  CostSettings();
+
+  CostSettings.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    vatRate = json['vatRate'];
+    hourlyWage = json['hourlyWage'];
+    electricityPrice = json['electricityPrice'];
+    electricityRevenues = json['electricityRevenues'];
+    electricityDemandShare = json['electricityDemandShare'];
+    interestRate = json['interestRate'];
+    interestRateFunding = json['interestRateFunding'];
+    funding = json['funding'];
+    insuranceShare = json['insuranceShare'];
+    otherShare = json['otherShare'];
+    administrationShare = json['administrationShare'];
+    investmentFactor = json['investmentFactor'];
+    bioFuelFactor = json['bioFuelFactor'];
+    fossilFuelFactor = json['fossilFuelFactor'];
+    electricityFactor = json['electricityFactor'];
+    operationFactor = json['operationFactor'];
+    maintenanceFactor = json['maintenanceFactor'];
+  }
+
+  factory CostSettings.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.COST_SETTINGS, id);
+    if (json == null) return null;
+    return new CostSettings.fromJson(json, pack: pack);
+  }
+
+  factory CostSettings._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new CostSettings.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('vatRate', vatRate);
+    w.val('hourlyWage', hourlyWage);
+    w.val('electricityPrice', electricityPrice);
+    w.val('electricityRevenues', electricityRevenues);
+    w.val('electricityDemandShare', electricityDemandShare);
+    w.val('interestRate', interestRate);
+    w.val('interestRateFunding', interestRateFunding);
+    w.val('funding', funding);
+    w.val('insuranceShare', insuranceShare);
+    w.val('otherShare', otherShare);
+    w.val('administrationShare', administrationShare);
+    w.val('investmentFactor', investmentFactor);
+    w.val('bioFuelFactor', bioFuelFactor);
+    w.val('fossilFuelFactor', fossilFuelFactor);
+    w.val('electricityFactor', electricityFactor);
+    w.val('operationFactor', operationFactor);
+    w.val('maintenanceFactor', maintenanceFactor);
+    return json;
+  }
+}
+
+class Project extends RootEntity {
+  int duration;
+  List<Producer> producers;
+  List<Consumer> consumers;
+  WeatherStation weatherStation;
+  CostSettings costSettings;
+  HeatNet heatNet;
+  List<ProductEntry> productEntries;
+  List<Product> ownProducts;
+  List<FlueGasCleaningEntry> flueGasCleaningEntries;
+
+  Project();
+
+  Project.fromJson(Map<String, dynamic> json, {DataPack pack})
+      : super.fromJson(json, pack: pack) {
+    duration = json['duration'];
+    producers =
+        jsonEach(json['producers'], (obj) => new Producer._fromRef(obj, pack));
+    consumers =
+        jsonEach(json['consumers'], (obj) => new Consumer._fromRef(obj, pack));
+    weatherStation = jsonObj(json['weatherStation'],
+        (obj) => new WeatherStation._fromRef(obj, pack));
+    costSettings = jsonObj(json['costSettings'],
+        (obj) => new CostSettings.fromJson(obj, pack: pack));
+    heatNet = jsonObj(
+        json['heatNet'], (obj) => new HeatNet.fromJson(obj, pack: pack));
+    productEntries = jsonEach(json['productEntries'],
+        (obj) => new ProductEntry.fromJson(obj, pack: pack));
+    ownProducts =
+        jsonEach(json['ownProducts'], (obj) => new Product._fromRef(obj, pack));
+    flueGasCleaningEntries = jsonEach(json['flueGasCleaningEntries'],
+        (obj) => new FlueGasCleaningEntry.fromJson(json, pack: pack));
+  }
+
+  factory Project.fromPack(String id, DataPack pack) {
+    if (pack == null || id == null) return null;
+    var json = pack.get(ModelType.PROJECT, id);
+    if (json == null) return null;
+    return new Project.fromJson(json, pack: pack);
+  }
+
+  factory Project._fromRef(Map<String, dynamic> ref, DataPack pack) {
+    if (ref == null) return null;
+    return new Project.fromPack(ref['id'], pack);
+  }
+
+  @override
+  Map<String, dynamic> toJson({DataPack pack}) {
+    var json = super.toJson(pack: pack);
+    var w = new JsonWriter(pack, json);
+    w.val('duration', duration);
+    w.refList('producers', producers);
+    w.refList('consumers', consumers);
+    w.refObj('weatherStation', weatherStation);
+    w.obj('costSettings', costSettings);
+    w.obj('heatNet', heatNet);
+    w.list('productEntries', productEntries);
+    w.list('ownProducts', ownProducts);
+    w.list('flueGasCleaningEntries', flueGasCleaningEntries);
     return json;
   }
 }
