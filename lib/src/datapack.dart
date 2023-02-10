@@ -7,7 +7,7 @@ import 'package:logging/logging.dart';
 import 'enums.dart';
 
 class DataPack {
-  Archive _archive;
+  late final Archive _archive;
   final Logger _log = new Logger('sophena.DataPack');
 
   DataPack() {
@@ -37,45 +37,34 @@ class DataPack {
   }
 
   bool contains(ModelType type, String id) {
-    if (type == null || id == null) {
-      return false;
-    }
-    String path = '${_path(type)}/$id.json';
+    var path = '${_path(type)}/$id.json';
     return _archive.findFile(path) != null;
   }
 
   /// Loads the json object for the given [type] and [id] from the package.
   ///
   /// It simply returns `null` if it does not exist.
-  Map<String, dynamic> get(ModelType type, String id) {
-    if (type == null || id == null) {
-      return null;
-    }
-    String path = '${_path(type)}/$id.json';
-    ArchiveFile f = _archive.findFile(path);
-    if (f == null) {
-      return null;
-    }
-    return JSON.decode(UTF8.decode(f.content)) as Map<String, dynamic>;
+  Map<String, dynamic>? get(ModelType type, String id) {
+    var path = '${_path(type)}/$id.json';
+    var f = _archive.findFile(path);
+    return f != null
+        ? json.decode(utf8.decode(f.content)) as Map<String, dynamic>
+        : null;
   }
 
-  void put(ModelType type, Map<String, dynamic> json) {
-    if (type == null || json == null) {
-      _log.warning('Cannot add json for $type: type or json is null');
-      return;
-    }
-    String id = json['id'];
+  void put(ModelType type, Map<String, dynamic> map) {
+    String? id = map['id'];
     if (id == null) {
       _log.warning('Cannot add json for $type: id is null');
       return;
     }
-    String path = '${_path(type)}/$id.json';
-    ArchiveFile f = _archive.findFile(path);
+    var path = '${_path(type)}/$id.json';
+    var f = _archive.findFile(path);
     if (f != null) {
       _log.warning('Cannot add json $path as it already exists');
       return;
     }
-    List<int> content = UTF8.encode(JSON.encode(json));
+    List<int> content = utf8.encode(json.encode(map));
     f = new ArchiveFile(path, content.length, content);
     _archive.addFile(f);
   }
@@ -85,8 +74,8 @@ class DataPack {
     _log.fine('Write data pack to $path');
     try {
       File file = new File(path);
-      List<int> bytes = new ZipEncoder().encode(_archive);
-      file.writeAsBytesSync(bytes);
+      List<int>? bytes = new ZipEncoder().encode(_archive);
+      file.writeAsBytesSync(bytes!);
     } catch (e) {
       _log.severe('Failed to save data pack to $path', e);
     }
@@ -94,7 +83,6 @@ class DataPack {
 }
 
 String _path(ModelType type) {
-  if (type == null) return "unknown";
   switch (type) {
     case ModelType.BOILER:
       return "boilers";

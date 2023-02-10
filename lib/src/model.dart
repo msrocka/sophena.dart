@@ -5,7 +5,7 @@ import 'json.dart';
 /// An abstract entity is basically just a thing that can be stored in a
 /// Sophena database or data package.
 abstract class AbstractEntity {
-  String id;
+  String? id;
 
   AbstractEntity();
 
@@ -15,7 +15,7 @@ abstract class AbstractEntity {
   /// the sub-class specific fields from the json object. If a data [pack] is
   /// given, referenced root entities will be created from the respective
   /// content of the data pack.
-  AbstractEntity.fromJson(Map<String, dynamic> json, {DataPack pack}) {
+  AbstractEntity.fromJson(Map<String, dynamic> json, {DataPack? pack}) {
     id = json['id'];
   }
 
@@ -23,7 +23,7 @@ abstract class AbstractEntity {
   ///
   /// If a data [pack] is given, referenced root entities will be also converted
   /// and written to the data pack during the conversion.
-  Map<String, dynamic> toJson({DataPack pack}) {
+  Map<String, dynamic> toJson({DataPack? pack}) {
     Map<String, dynamic> json = {};
     json['id'] = id;
     json['@type'] = this.runtimeType.toString();
@@ -36,19 +36,19 @@ abstract class AbstractEntity {
 /// Typically root entities can be referenced from multiple other entities and
 /// are stored in separate files in a data pack.
 abstract class RootEntity extends AbstractEntity {
-  String name;
-  String description;
+  String? name;
+  String? description;
 
   RootEntity();
 
-  RootEntity.fromJson(Map<String, dynamic> json, {DataPack pack})
+  RootEntity.fromJson(Map<String, dynamic> json, {DataPack? pack})
       : super.fromJson(json, pack: pack) {
     name = json['name'];
     description = json['description'];
   }
 
   @override
-  Map<String, dynamic> toJson({DataPack pack}) {
+  Map<String, dynamic> toJson({DataPack? pack}) {
     var json = super.toJson(pack: pack);
     if (name != null) {
       json['name'] = name;
@@ -60,17 +60,20 @@ abstract class RootEntity extends AbstractEntity {
   }
 
   /// Save the entity to the given data pack.
-  void save(DataPack pack) {
+  void save(DataPack? pack) {
     if (pack == null) {
       return;
     }
     var json = toJson(pack: pack);
-    pack.put(modelType(this), json);
+    var mt = modelType(this);
+    if (mt != null) {
+      modelType(this);
+    }
   }
 }
 
 /// Returns the model type of the given entity.
-ModelType modelType<T extends RootEntity>(T e) {
+ModelType? modelType<T extends RootEntity>(T e) {
   if (e is Manufacturer) return ModelType.MANUFACTURER;
   if (e is ProductGroup) return ModelType.PRODUCT_GROUP;
   if (e is BufferTank) return ModelType.BUFFER;
@@ -99,17 +102,17 @@ ModelType modelType<T extends RootEntity>(T e) {
 abstract class BaseDataEntity extends RootEntity {
   /// If a data set is protected it cannot be modified by a user of the
   /// application.
-  bool isProtected;
+  bool isProtected = false;
 
   BaseDataEntity();
 
-  BaseDataEntity.fromJson(Map<String, dynamic> json, {DataPack pack})
+  BaseDataEntity.fromJson(Map<String, dynamic> json, {DataPack? pack})
       : super.fromJson(json, pack: pack) {
     isProtected = json['isProtected'];
   }
 
   @override
-  Map<String, dynamic> toJson({DataPack pack}) {
+  Map<String, dynamic> toJson({DataPack? pack}) {
     var json = super.toJson(pack: pack);
     json['isProtected'] = isProtected;
     return json;
@@ -117,31 +120,31 @@ abstract class BaseDataEntity extends RootEntity {
 }
 
 class Manufacturer extends BaseDataEntity {
-  String address;
-  String url;
+  String? address;
+  String? url;
 
   Manufacturer();
 
-  Manufacturer.fromJson(Map<String, dynamic> json, {DataPack pack})
+  Manufacturer.fromJson(Map<String, dynamic> json, {DataPack? pack})
       : super.fromJson(json, pack: pack) {
     address = json['address'];
     url = json['url'];
   }
 
   factory Manufacturer.fromPack(String id, DataPack pack) {
-    if (pack == null || id == null) return null;
     var json = pack.get(ModelType.MANUFACTURER, id);
-    if (json == null) return null;
-    return new Manufacturer.fromJson(json, pack: pack);
+    if (json == null) {
+      return Manufacturer()..id = id;
+    }
+    return Manufacturer.fromJson(json, pack: pack);
   }
 
   factory Manufacturer._fromRef(Map<String, dynamic> ref, DataPack pack) {
-    if (ref == null) return null;
     return new Manufacturer.fromPack(ref['id'], pack);
   }
 
   @override
-  Map<String, dynamic> toJson({DataPack pack}) {
+  Map<String, dynamic> toJson({DataPack? pack}) {
     var json = super.toJson(pack: pack);
     var w = new JsonWriter(pack, json);
     w.val('address', address);

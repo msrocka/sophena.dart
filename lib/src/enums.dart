@@ -43,9 +43,8 @@ enum ProductType {
 }
 
 /// Get the product type for the given string [value].
-ProductType getProductType(String value) {
-  if (value == null) return null;
-  for (ProductType fg in ProductType.values) {
+ProductType? getProductType(String value) {
+  for (var fg in ProductType.values) {
     String s = fg.toString().split('\.')[1];
     if (s == value) {
       return fg;
@@ -71,8 +70,7 @@ enum FuelGroup {
 }
 
 /// Get the fuel group for the given string [value].
-FuelGroup getFuelGroup(String value) {
-  if (value == null) return null;
+FuelGroup? getFuelGroup(String value) {
   for (FuelGroup fg in FuelGroup.values) {
     String s = fg.toString().split('\.')[1];
     if (s == value) {
@@ -86,8 +84,7 @@ FuelGroup getFuelGroup(String value) {
 enum WoodAmountType { MASS, CHIPS, LOGS }
 
 /// Get the wood amount type for the given string [value].
-WoodAmountType getWoodAmountType(String value) {
-  if (value == null) return null;
+WoodAmountType? getWoodAmountType(String value) {
   for (WoodAmountType wt in WoodAmountType.values) {
     String s = wt.toString().split('\.')[1];
     if (s == value) {
@@ -116,8 +113,7 @@ enum BuildingType {
 }
 
 /// Get the building type for the given string [value].
-BuildingType getBuildingType(String value) {
-  if (value == null) return null;
+BuildingType? getBuildingType(String value) {
   for (BuildingType bt in BuildingType.values) {
     String s = bt.toString().split('\.')[1];
     if (s == value) {
@@ -130,8 +126,7 @@ BuildingType getBuildingType(String value) {
 enum PipeType { UNO, DUO }
 
 /// Get the pipe type for the given string [value].
-PipeType getPipeType(String value) {
-  if (value == null) return null;
+PipeType? getPipeType(String value) {
   for (PipeType pt in PipeType.values) {
     String s = pt.toString().split('\.')[1];
     if (s == value) {
@@ -144,8 +139,7 @@ PipeType getPipeType(String value) {
 enum ProducerFunction { BASE_LOAD, PEAK_LOAD }
 
 /// Get the producer function for the given string [value].
-ProducerFunction getProducerFunction(String value) {
-  if (value == null) return null;
+ProducerFunction? getProducerFunction(String value) {
   for (ProducerFunction pf in ProducerFunction.values) {
     String s = pf.toString().split('\.')[1];
     if (s == value) {

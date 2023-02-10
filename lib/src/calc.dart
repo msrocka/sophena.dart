@@ -11,8 +11,6 @@ class CalorificValue {
       double waterContent = 0.2,
       double calorificValue = 5200.0 // kWh/t
       }) {
-    if (woodMass == null || waterContent == null || calorificValue == null)
-      return 0.0;
     return woodMass *
         ((1 - waterContent) * calorificValue - waterContent * 680);
   }
