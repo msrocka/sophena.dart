@@ -78,17 +78,12 @@ class JsonWriter {
 
 List<T> jsonEach<T>(dynamic jsonList, T fn(Map<String, dynamic> m)) {
   if (jsonList is! List<Map<String, dynamic>>) {
-    return null;
+    return [];
   }
   List<T> list = [];
   for (var json in jsonList) {
-    if (json is! Map<String, dynamic>) {
-      continue;
-    }
     T e = fn(json);
-    if (e is T) {
-      list.add(e);
-    }
+    list.add(e);
   }
   return list;
 }
